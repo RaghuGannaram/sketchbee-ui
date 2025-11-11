@@ -29,8 +29,8 @@ interface GameContextProps {
 const GameContext = createContext<GameContextProps | undefined>(undefined);
 
 export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [brushSize, setBrushSize] = useLocalStorage("sketchbee:brushSize", 1);
-    const [brushColor, setBrushColor] = useLocalStorage("sketchbee:brushColor", "#000000");
+    const [brushSize, setBrushSize] = useLocalStorage("sketchbee:brushSize", 5);
+    const [brushColor, setBrushColor] = useLocalStorage("sketchbee:brushColor", "#82c65d");
     const [activeTool, setActiveTool] = useLocalStorage<ToolType>("sketchbee:activeTool", "brush");
 
     const [canvasFrames, setCanvasFrames] = useState<string[]>([]);
