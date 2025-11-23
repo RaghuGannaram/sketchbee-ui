@@ -1,6 +1,6 @@
 // src/components/BrushControls.tsx
 import React from "react";
-import { Undo2, Redo2, Eraser, Trash2, Brush, Palette } from "lucide-react";
+import { Eraser, Brush, Palette, Undo2, Redo2, Trash2 } from "lucide-react";
 import { useGameContext } from "../contexts/GameContext";
 
 const BrushControls: React.FC = () => {
@@ -43,7 +43,7 @@ const BrushControls: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-8">
-                <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
                     <Brush className="w-5 h-5" />
                     <input
                         type="range"
@@ -54,9 +54,9 @@ const BrushControls: React.FC = () => {
                         className="w-48 accent-yellow-500"
                     />
                     <span className="text-gray-600 w-6">{brushSize}px</span>
-                </label>
+                </div>
 
-                <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
                     <Palette className="w-5 h-5 text-yellow-600" />
                     <input
                         type="color"
@@ -64,7 +64,7 @@ const BrushControls: React.FC = () => {
                         onChange={(e) => setBrushColor(e.target.value)}
                         className="w-8 h-8 cursor-pointer"
                     />
-                </label>
+                </div>
             </div>
 
             <div className="flex items-center gap-3">

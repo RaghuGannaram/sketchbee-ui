@@ -8,7 +8,8 @@ import "./App.css";
 export default function App() {
     const [handle, _setHandle] = useLocalStorage<string>("sketchbee:handle", "");
 
-    console.log("handle", handle)
+    console.log("sketchbee-log: user handle, ", handle);
+
     return (
         <GameProvider>
             <Router>

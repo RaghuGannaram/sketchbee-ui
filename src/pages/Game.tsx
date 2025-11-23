@@ -1,24 +1,27 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import ActivePlayersList from "../components/ActivePlayersList";
 import DrawingCanvas from "../components/DrawingCanvas";
 import ChatWindow from "../components/ChatWindow";
 import BrushControls from "../components/BrushControls";
-import { ArrowLeft } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 
 const Game: React.FC = () => {
     const navigate = useNavigate();
 
     return (
         <div className="min-h-screen w-full flex flex-col px-12 py-2 bg-linear-to-br from-yellow-100 via-amber-50 to-orange-100 overflow-hidden">
-            <nav className="h-16 flex items-center gap-2 z-50">
-                <button
-                    onClick={() => navigate("/")}
-                    className="p-1 bg-white rounded-full shadow-md hover:bg-yellow-50 transition-all"
-                >
-                    <ArrowLeft className="text-yellow-600 w-5 h-5" />
-                </button>
-                <span className="hidden sm:inline text-yellow-700 font-semibold text-lg">Back</span>
+            <nav className="h-16 flex justify-between items-center">
+                <span className="flex items-center gap-2 text-yellow-700 font-semibold text-lg">
+                    <button
+                        onClick={() => navigate("/")}
+                        className="p-1 bg-white rounded-full shadow-md hover:bg-yellow-50 transition-all"
+                    >
+                        <ArrowLeft className="text-yellow-600 w-5 h-5" />
+                    </button>
+                    Back
+                </span>
+                <span>Omi</span>
             </nav>
 
             <div className="flex-1 grid gap-4 grid-cols-1 grid-rows-[auto_auto_auto_auto] sm:grid-cols-[minmax(180px,1fr)_minmax(500px,3fr)_minmax(250px,1fr)] sm:grid-rows-1 ">
