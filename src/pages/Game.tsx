@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import ActivePlayersList from "../components/ActivePlayersList";
 import DrawingCanvas from "../components/DrawingCanvas";
@@ -14,14 +14,17 @@ const Game: React.FC = () => {
     const [userHandle, _setUserHandle] = useLocalStorage<string>("sketchbee:handle", "");
 
     useEffect(() => {
+        if (!userHandle) {
+            navigate("/");
+        }
+    }, [userHandle]);
+
+    useEffect(() => {
         emit("chamber:join", { handle: userHandle }, (response: any) => {
-            console.log("sketchbee-log: joined chamber response: ", response);
+            console.log("sketchbee-log: joined chamber: ", response);
         });
     }, []);
 
-    if (!userHandle) {
-        return <Navigate to="/" replace />;
-    }
     return (
         <div className="min-h-screen w-full flex flex-col px-12 py-2 bg-linear-to-br from-yellow-100 via-amber-50 to-orange-100 overflow-hidden">
             <nav className="h-16 flex justify-between items-center">
