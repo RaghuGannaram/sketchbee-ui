@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { GameProvider } from "./contexts/GameContext";
 import Home from "./pages/Home";
 import Game from "./pages/Game";
@@ -12,8 +12,8 @@ export default function App() {
     const { emit } = useSocket();
 
     useEffect(() => {
-        emit("greet", { greeting: "Hello server..!" }, (response: any) => {
-            console.log(`sketchbee-log: server greeted at ${response.serverTime} :`, response.greeting);
+        emit("sys:greet", { greeting: "Hello server..!" }, (response: any) => {
+            console.log(`sketchbee-log: server greeted at ___${new Date(response.serverTime)}___ :`, response.greeting);
         });
     }, []);
 
@@ -24,7 +24,7 @@ export default function App() {
             <Router>
                 <Routes>
                     <Route path="/" element={<Home />} />
-                    <Route path="/game" element={userHandle ? <Game /> : <Navigate to="/" replace />} />
+                    <Route path="/game" element={<Game />} />
                 </Routes>
             </Router>
         </GameProvider>

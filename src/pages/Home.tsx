@@ -10,9 +10,10 @@ const Home: React.FC = () => {
     const handleSubmit = (event: React.FormEvent) => {
         event.preventDefault();
 
-        setHandle(handle.trim());
+        const trimmedHandle = handle.trim();
 
-        if (handle.trim()) {
+        if (trimmedHandle) {
+            setHandle(trimmedHandle);
             navigate("/game");
         }
     };
