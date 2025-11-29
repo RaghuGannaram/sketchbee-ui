@@ -5,16 +5,18 @@ const socket: Socket = io(import.meta.env.VITE_SOCKET_URL, {
     autoConnect: false,
 });
 
-console.info("sketchbee-info: socket connection triggered : ", socket.io.engine?.transport.name);
-
 function useSocket() {
     useEffect(() => {
         const handleConnect = () => {
-            console.info("sketchbee-info: socket connected : ", socket.id);
+            console.info("sketchbee-info: socket %s connected via %s: ", socket.id, socket.io.engine?.transport.name);
         };
 
         const handleDisconnect = () => {
             console.info("sketchbee-info: socket disconnected");
+        };
+
+        const handleUpgrade = (transport: { name: string }) => {
+            console.info("sketchbee-info: connection upgraded to: ", transport.name);
         };
 
         if (!socket.connected) {
@@ -22,12 +24,15 @@ function useSocket() {
         }
 
         socket.on("connect", handleConnect);
-
         socket.on("disconnect", handleDisconnect);
+
+        socket.io.engine.on("upgrade", handleUpgrade);
 
         return () => {
             socket.off("connect", handleConnect);
             socket.off("disconnect", handleDisconnect);
+
+            socket.io.engine.off("upgrade", handleUpgrade);
         };
     }, []);
 
