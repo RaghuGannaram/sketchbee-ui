@@ -16,10 +16,10 @@ export interface ISeerState {
 }
 
 export interface ISeerActions {
-    inscribe: (epithet: string, guise?: string) => void;
-    attune: (data: any) => void;
+    incarnate: (epithet: string, guise?: string) => void;
+    tether: (data: any) => void;
     sever: () => void;
-    updateStatus: (updates: Partial<ISeerState>) => void;
+    transmute: (updates: Partial<ISeerState>) => void;
 }
 
 export interface ISeerStore extends ISeerState, ISeerActions {}
@@ -37,13 +37,13 @@ export const seerStore = createStore<ISeerStore>()(
             isCaster: false,
             hasUnveiled: false,
 
-            inscribe: (epithet) =>
+            incarnate: (epithet) =>
                 set((_state) => ({
                     epithet,
                     guise: `https://api.dicebear.com/7.x/notionists/svg?seed=${epithet}`,
                 })),
 
-            attune: (response) =>
+            tether: (response) =>
                 set((state) => {
                     const seerData = response.seer;
                     const chamberId = response.chamberId;
@@ -70,8 +70,8 @@ export const seerStore = createStore<ISeerStore>()(
                     isCaster: false,
                     hasUnveiled: false,
                 })),
-                
-            updateStatus: (updates) =>
+
+            transmute: (updates) =>
                 set((state) => ({
                     ...state,
                     ...updates,

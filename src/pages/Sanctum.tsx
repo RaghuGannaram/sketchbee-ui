@@ -14,7 +14,7 @@ const Sanctum: React.FC = () => {
     const guise = useSeer((state) => state.guise);
     const seerId = useSeer((state) => state.seerId);
     const chamberId = useSeer((state) => state.chamberId);
-    const attune = useSeer((state) => state.attune);
+    const tether = useSeer((state) => state.tether);
     const sever = useSeer((state) => state.sever);
     const { emit } = useSocket();
 
@@ -31,7 +31,7 @@ const Sanctum: React.FC = () => {
                 sever();
                 return navigate("/");
             }
-            attune(response);
+            tether(response);
             console.log("sketchbee-log: joined chamber: ", response);
         });
     }, []);

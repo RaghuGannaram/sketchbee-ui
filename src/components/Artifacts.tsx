@@ -1,6 +1,8 @@
 import React from "react";
 import { Eraser, Brush, Palette, Undo2, Redo2, Trash2 } from "lucide-react";
 import useStylus from "../hooks/useStylus";
+import useSeer from "../hooks/useSeer";
+import useSocket from "../hooks/useSocket";
 
 const Artifacts: React.FC = () => {
     const tip = useStylus((state) => state.tip);
@@ -13,6 +15,32 @@ const Artifacts: React.FC = () => {
     const revoke = useStylus((state) => state.revoke);
     const invoke = useStylus((state) => state.invoke);
     const banish = useStylus((state) => state.banish);
+
+    const chamberId = useSeer((state) => state.chamberId);
+    const seerId = useSeer((state) => state.seerId);
+
+    const { emit } = useSocket();
+
+    const undoHandler = () => {
+        const vision = revoke();
+
+        if (!vision) {
+            emit("rune:void", { chamberId, casterId: seerId });
+        } else {
+            emit("rune:shift", { chamberId, casterId: seerId, vision });
+        }
+    };
+    const redoHandler = () => {
+        const vision = invoke();
+
+        emit("rune:shift", { chamberId, casterId: seerId, vision });
+    };
+
+    const clearHandler = () => {
+        banish();
+
+        emit("rune:void", { chamberId, casterId: seerId });
+    };
 
     return (
         <div className="w-full h-full flex flex-col sm:flex-row justify-between items-center gap-4">
@@ -69,7 +97,7 @@ const Artifacts: React.FC = () => {
 
             <div className="flex items-center gap-3">
                 <button
-                    onClick={() => revoke()}
+                    onClick={() => undoHandler()}
                     className="p-2 rounded-md bg-white hover:bg-yellow-50 border border-gray-300 transition-all"
                     title="Revoke (Undo)"
                 >
@@ -77,7 +105,7 @@ const Artifacts: React.FC = () => {
                 </button>
 
                 <button
-                    onClick={() => invoke()}
+                    onClick={() => redoHandler()}
                     className="p-2 rounded-md bg-white hover:bg-yellow-50 border border-gray-300 transition-all"
                     title="Invoke (Redo)"
                 >
@@ -85,7 +113,7 @@ const Artifacts: React.FC = () => {
                 </button>
 
                 <button
-                    onClick={() => banish()}
+                    onClick={() => clearHandler()}
                     className="p-2 rounded-md bg-white hover:bg-red-50 border border-gray-300 transition-all"
                     title="Banish (Clear)"
                 >

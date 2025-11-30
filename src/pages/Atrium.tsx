@@ -7,7 +7,7 @@ import useSeer from "../hooks/useSeer";
 const Atrium: React.FC = () => {
     const navigate = useNavigate();
     const epithet = useSeer((state) => state.epithet);
-    const inscribe = useSeer((state) => state.inscribe);
+    const incarnate = useSeer((state) => state.incarnate);
     const [neoEpithet, setNeoEpithet] = useState(epithet || "");
     const { emit } = useSocket();
 
@@ -23,7 +23,7 @@ const Atrium: React.FC = () => {
         const trimmedEpithet = neoEpithet.trim();
 
         if (trimmedEpithet) {
-            inscribe(trimmedEpithet);
+            incarnate(trimmedEpithet);
             navigate("/sanctum");
         }
     };

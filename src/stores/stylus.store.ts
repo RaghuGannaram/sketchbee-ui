@@ -17,7 +17,7 @@ interface IStylusActions {
     setPigment: (color: string) => void;
     setTip: (tool: ToolMode) => void;
 
-    imprint: (dataURL: string) => void;
+    anchor: (dataURL: string) => void;
     revoke: () => string | null;
     invoke: () => string | null;
     banish: () => void;
@@ -38,7 +38,7 @@ export const stylusStore = createStore<IStylusStore>()(
             setPigment: (color) => set({ pigment: color }),
             setTip: (tool) => set({ tip: tool }),
 
-            imprint: (dataURL) =>
+            anchor: (dataURL) =>
                 set((state) => {
                     const past = state.snapshots.slice(0, state.pointer + 1);
                     const updated = [...past, dataURL];
@@ -69,11 +69,14 @@ export const stylusStore = createStore<IStylusStore>()(
                 return newPointer === -1 ? null : snapshots[newPointer];
             },
 
-            banish: () =>
+            banish: () => {
                 set({
                     snapshots: [],
                     pointer: -1,
-                }),
+                });
+
+                return null;
+            },
         }),
         {
             name: "sketchbee:stylus",

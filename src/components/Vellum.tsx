@@ -1,17 +1,33 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import useStylus from "../hooks/useStylus";
+import useSocket from "../hooks/useSocket";
+import useSeer from "../hooks/useSeer";
 import brushCursor from "../assets/brush-cursor.png";
 import eraserCursor from "../assets/eraser-cursor.png";
 
+interface ISigil {
+    start: { x: number; y: number };
+    end: { x: number; y: number };
+    tip: "etch" | "rub";
+    gauge: number;
+    pigment: string;
+}
+
 const Vellum: React.FC = () => {
+    const tip = useStylus((state) => state.tip);
     const gauge = useStylus((state) => state.gauge);
     const pigment = useStylus((state) => state.pigment);
-    const tip = useStylus((state) => state.tip);
     const snapshots = useStylus((state) => state.snapshots);
     const pointer = useStylus((state) => state.pointer);
-    const imprint = useStylus((state) => state.imprint);
+    const anchor = useStylus((state) => state.anchor);
+
+    const chamberId = useSeer((state) => state.chamberId);
+    const seerId = useSeer((state) => state.seerId);
+
+    const { emit, subscribe } = useSocket();
 
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const bufferRef = useRef<ISigil[]>([]);
     const [isCasting, setIsCasting] = useState(false);
     const [lastPoint, setLastPoint] = useState<{ x: number; y: number } | null>(null);
     const [cursorStyle, setCursorStyle] = useState<string>("crosshair");
@@ -65,7 +81,121 @@ const Vellum: React.FC = () => {
         }
     }, [tip]);
 
-    const prepareCasting = (event: React.MouseEvent) => {
+    useEffect(() => {
+        const pulse = setInterval(() => {
+            if (bufferRef.current.length > 0) {
+                emit("rune:sigil", {
+                    chamberId,
+                    casterId: seerId,
+                    sigils: bufferRef.current,
+                });
+                bufferRef.current = [];
+            }
+        }, 50);
+
+        return () => clearInterval(pulse);
+    }, []);
+
+    useEffect(() => {
+        const handleManifestVellum = (data: { chamberId: string; casterId: string; sigils: ISigil[] }) => {
+            if (data.chamberId !== chamberId) return;
+            if (data.casterId === seerId) return;
+
+            data.sigils.forEach((sigil) => {
+                performStroke(sigil.start, sigil.end, sigil.tip, sigil.gauge, sigil.pigment);
+            });
+        };
+
+        const unsubscribe = subscribe("rune:sigil", handleManifestVellum);
+
+        return () => {
+            unsubscribe();
+        };
+    }, []);
+
+    useEffect(() => {
+        const handleShiftVellum = (data: { chamberId: string; casterId: string; vision: string }) => {
+            if (data.chamberId !== chamberId) return;
+            if (data.casterId === seerId) return;
+
+            const canvas = canvasRef.current;
+            if (!canvas) return;
+
+            const ctx = canvas.getContext("2d");
+            if (!ctx) return;
+
+            const img = new Image();
+            img.src = data.vision;
+
+            img.onload = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            };
+        };
+        const unsubscribe = subscribe("rune:shift", handleShiftVellum);
+
+        return () => {
+            unsubscribe();
+        };
+    }, []);
+
+    useEffect(() => {
+        const handleClearVellum = (data: { chamberId: string; casterId: string }) => {
+            if (data.chamberId !== chamberId) return;
+            if (data.casterId === seerId) return;
+
+            const canvas = canvasRef.current;
+            if (!canvas) return;
+
+            const ctx = canvas.getContext("2d");
+            if (!ctx) return;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        };
+
+        const unsubscribe = subscribe("rune:void", handleClearVellum);
+
+        return () => {
+            unsubscribe();
+        };
+    }, []);
+
+    const performStroke = useCallback(
+        (
+            start: { x: number; y: number },
+            end: { x: number; y: number },
+            tip: "etch" | "rub",
+            gauge: number,
+            pigment: string
+        ) => {
+            const canvas = canvasRef.current;
+            if (!canvas) return;
+
+            const ctx = canvas.getContext("2d");
+            if (!ctx) return;
+
+            ctx.lineCap = "round";
+            ctx.lineJoin = "round";
+
+            if (tip === "rub") {
+                ctx.globalCompositeOperation = "destination-out";
+                ctx.lineWidth = 50;
+                ctx.strokeStyle = "rgba(0,0,0,1)";
+            } else {
+                ctx.globalCompositeOperation = "source-over";
+                ctx.lineWidth = gauge;
+                ctx.strokeStyle = pigment;
+            }
+
+            ctx.beginPath();
+            ctx.moveTo(start.x, start.y);
+            ctx.lineTo(end.x, end.y);
+            ctx.stroke();
+        },
+        []
+    );
+
+    const engageStylus = (event: React.MouseEvent) => {
         if (!canvasRef.current) return;
         const rect = canvasRef.current.getBoundingClientRect();
 
@@ -73,7 +203,7 @@ const Vellum: React.FC = () => {
         setLastPoint({ x: event.clientX - rect.left, y: event.clientY - rect.top });
     };
 
-    const continueCasting = (event: React.MouseEvent) => {
+    const wieldStylus = (event: React.MouseEvent) => {
         if (!isCasting || !canvasRef.current || !lastPoint) return;
 
         const ctx = canvasRef.current.getContext("2d");
@@ -82,45 +212,31 @@ const Vellum: React.FC = () => {
         const rect = canvasRef.current.getBoundingClientRect();
         const x = event.clientX - rect.left;
         const y = event.clientY - rect.top;
+        const newPoint = { x, y };
 
-        ctx.lineCap = "round";
-        ctx.lineJoin = "round";
+        performStroke(lastPoint, newPoint, tip, gauge, pigment);
+        bufferRef.current.push({ start: lastPoint, end: newPoint, tip, gauge, pigment });
 
-        if (tip === "rub") {
-            ctx.globalCompositeOperation = "destination-out";
-            ctx.lineWidth = 50;
-            ctx.strokeStyle = "rgba(0,0,0,1)";
-        } else {
-            ctx.globalCompositeOperation = "source-over";
-            ctx.lineWidth = gauge;
-            ctx.strokeStyle = pigment;
-        }
-
-        ctx.beginPath();
-        ctx.moveTo(lastPoint.x, lastPoint.y);
-        ctx.lineTo(x, y);
-        ctx.stroke();
-
-        setLastPoint({ x, y });
+        setLastPoint(newPoint);
     };
 
-    const finishCasting = () => {
-        if (!isCasting || !canvasRef.current) return;
+    const disengageStylus = () => {
+        if (!canvasRef.current || !isCasting) return;
 
         setIsCasting(false);
         setLastPoint(null);
 
-        const memory = canvasRef.current.toDataURL();
-        imprint(memory);
+        const vision = canvasRef.current.toDataURL();
+        anchor(vision);
     };
 
     return (
         <canvas
             ref={canvasRef}
-            onMouseDown={prepareCasting}
-            onMouseMove={continueCasting}
-            onMouseUp={finishCasting}
-            onMouseLeave={finishCasting}
+            onMouseDown={engageStylus}
+            onMouseMove={wieldStylus}
+            onMouseUp={disengageStylus}
+            onMouseLeave={disengageStylus}
             className="w-full h-full bg-white border border-yellow-300 rounded-lg shadow-md cursor-pointer touch-none"
             style={{ cursor: cursorStyle }}
         />
