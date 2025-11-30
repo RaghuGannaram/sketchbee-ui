@@ -11,6 +11,11 @@ import useSeer from "../hooks/useSeer";
 const Sanctum: React.FC = () => {
     const navigate = useNavigate();
     const epithet = useSeer((state) => state.epithet);
+    const guise = useSeer((state) => state.guise);
+    const seerId = useSeer((state) => state.seerId);
+    const chamberId = useSeer((state) => state.chamberId);
+    const attune = useSeer((state) => state.attune);
+    const sever = useSeer((state) => state.sever);
     const { emit } = useSocket();
 
     useEffect(() => {
@@ -20,7 +25,13 @@ const Sanctum: React.FC = () => {
     }, [epithet]);
 
     useEffect(() => {
-        emit("chamber:join", { epithet }, (response: any) => {
+        emit("chamber:join", { epithet, guise, seerId, chamberId }, (response: any) => {
+            if (!response.ok) {
+                console.error("sketchbee-error: failed to join chamber: ", response.message);
+                sever();
+                return navigate("/");
+            }
+            attune(response);
             console.log("sketchbee-log: joined chamber: ", response);
         });
     }, []);
