@@ -1,32 +1,23 @@
-import { useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { GameProvider } from "./contexts/GameContext";
+import { SocketProvider } from "./contexts/SocketContext";
 import Home from "./pages/Home";
 import Game from "./pages/Game";
-import useLocalStorage from "./hooks/useLocalStorage";
-import useSocket from "./hooks/useSocket";
+import useSeer from "./hooks/useSeer";
 import "./App.css";
 
 export default function App() {
-    const [userHandle, _setUserHandle] = useLocalStorage<string>("sketchbee:handle", "");
-    const { emit } = useSocket();
+    const epithet = useSeer((state) => state.epithet);
 
-    useEffect(() => {
-        emit("sys:greet", { greeting: "Hello server..!" }, (response: any) => {
-            console.log(`sketchbee-log: server greeted at ___${new Date(response.serverTime)}___ :`, response.greeting);
-        });
-    }, []);
-
-    console.log("sketchbee-log: user handle, ", userHandle);
+    console.log("sketchbee-log: user handle, ", epithet);
 
     return (
-        <GameProvider>
+        <SocketProvider>
             <Router>
                 <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/game" element={<Game />} />
                 </Routes>
             </Router>
-        </GameProvider>
+        </SocketProvider>
     );
 }

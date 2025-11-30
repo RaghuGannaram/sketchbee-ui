@@ -1,19 +1,28 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import useLocalStorage from "../hooks/useLocalStorage";
 import { motion } from "framer-motion";
+import useSocket from "../hooks/useSocket";
+import useSeer from "../hooks/useSeer";
 
 const Home: React.FC = () => {
-    const [handle, setHandle] = useLocalStorage("sketchbee:handle", "");
     const navigate = useNavigate();
+    const [epithet, setEpithet] = useState("");
+    const inscribe = useSeer((state) => state.inscribe);
+    const { emit } = useSocket();
+
+    useEffect(() => {
+        emit("sys:greet", { greeting: "Hello server..!" }, (response: any) => {
+            console.log(`sketchbee-log: server greeted at ___${new Date(response.serverTime)}___ :`, response.greeting);
+        });
+    }, []);
 
     const handleSubmit = (event: React.FormEvent) => {
         event.preventDefault();
 
-        const trimmedHandle = handle.trim();
+        const trimmedEpithet = epithet.trim();
 
-        if (trimmedHandle) {
-            setHandle(trimmedHandle);
+        if (trimmedEpithet) {
+            inscribe(trimmedEpithet);
             navigate("/game");
         }
     };
@@ -41,8 +50,8 @@ const Home: React.FC = () => {
                 <input
                     type="text"
                     placeholder="Enter your funny handle..."
-                    value={handle}
-                    onChange={(event) => setHandle(event.target.value)}
+                    value={epithet}
+                    onChange={(event) => setEpithet(event.target.value)}
                     className="px-4 py-2 w-64 sm:w-72 rounded-lg border border-yellow-400 focus:ring-2 focus:ring-yellow-500 focus:outline-none text-gray-700 text-lg shadow-sm"
                 />
                 <button

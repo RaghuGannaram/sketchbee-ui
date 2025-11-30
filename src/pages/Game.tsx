@@ -1,26 +1,26 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
+import useSeer from "../hooks/useSeer";
 import ActivePlayersList from "../components/ActivePlayersList";
 import DrawingCanvas from "../components/DrawingCanvas";
 import ChatWindow from "../components/ChatWindow";
 import BrushControls from "../components/BrushControls";
-import useLocalStorage from "../hooks/useLocalStorage";
 import useSocket from "../hooks/useSocket";
 
 const Game: React.FC = () => {
     const navigate = useNavigate();
+    const epithet = useSeer((state) => state.epithet);
     const { emit } = useSocket();
-    const [userHandle, _setUserHandle] = useLocalStorage<string>("sketchbee:handle", "");
 
     useEffect(() => {
-        if (!userHandle) {
+        if (!epithet) {
             navigate("/");
         }
-    }, [userHandle]);
+    }, [epithet]);
 
     useEffect(() => {
-        emit("chamber:join", { handle: userHandle }, (response: any) => {
+        emit("chamber:join", { epithet }, (response: any) => {
             console.log("sketchbee-log: joined chamber: ", response);
         });
     }, []);
