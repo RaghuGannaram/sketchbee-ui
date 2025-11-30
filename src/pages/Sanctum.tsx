@@ -1,14 +1,14 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-import useSeer from "../hooks/useSeer";
-import ActivePlayersList from "../components/ActivePlayersList";
-import DrawingCanvas from "../components/DrawingCanvas";
-import ChatWindow from "../components/ChatWindow";
-import BrushControls from "../components/BrushControls";
+import SeerCircle from "../components/SeerCircle";
+import Vellum from "../components/Vellum";
+import Whispers from "../components/Whispers";
+import Artifacts from "../components/Artifacts";
 import useSocket from "../hooks/useSocket";
+import useSeer from "../hooks/useSeer";
 
-const Game: React.FC = () => {
+const Sanctum: React.FC = () => {
     const navigate = useNavigate();
     const epithet = useSeer((state) => state.epithet);
     const { emit } = useSocket();
@@ -42,23 +42,23 @@ const Game: React.FC = () => {
 
             <div className="flex-1 grid gap-4 grid-cols-1 grid-rows-[auto_auto_auto_auto] sm:grid-cols-[minmax(180px,1fr)_minmax(500px,3fr)_minmax(250px,1fr)] sm:grid-rows-1 ">
                 <div className="sm:col-span-1 order-1 sm:order-0">
-                    <ActivePlayersList />
+                    <SeerCircle />
                 </div>
 
                 <div className="sm:col-span-1 order-2 sm:order-0 rounded-xl shadow-lg border border-yellow-200 ">
-                    <DrawingCanvas />
+                    <Vellum />
                 </div>
 
                 <div className="sm:col-span-1 order-3 sm:order-0">
-                    <ChatWindow />
+                    <Whispers />
                 </div>
             </div>
 
             <div className="h-32">
-                <BrushControls />
+                <Artifacts />
             </div>
         </div>
     );
 };
 
-export default Game;
+export default Sanctum;

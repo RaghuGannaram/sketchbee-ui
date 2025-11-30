@@ -4,10 +4,11 @@ import { motion } from "framer-motion";
 import useSocket from "../hooks/useSocket";
 import useSeer from "../hooks/useSeer";
 
-const Home: React.FC = () => {
+const Atrium: React.FC = () => {
     const navigate = useNavigate();
-    const [epithet, setEpithet] = useState("");
+    const epithet = useSeer((state) => state.epithet);
     const inscribe = useSeer((state) => state.inscribe);
+    const [neoEpithet, setNeoEpithet] = useState(epithet || "");
     const { emit } = useSocket();
 
     useEffect(() => {
@@ -19,11 +20,11 @@ const Home: React.FC = () => {
     const handleSubmit = (event: React.FormEvent) => {
         event.preventDefault();
 
-        const trimmedEpithet = epithet.trim();
+        const trimmedEpithet = neoEpithet.trim();
 
         if (trimmedEpithet) {
             inscribe(trimmedEpithet);
-            navigate("/game");
+            navigate("/sanctum");
         }
     };
 
@@ -50,15 +51,15 @@ const Home: React.FC = () => {
                 <input
                     type="text"
                     placeholder="Enter your funny handle..."
-                    value={epithet}
-                    onChange={(event) => setEpithet(event.target.value)}
+                    value={neoEpithet}
+                    onChange={(event) => setNeoEpithet(event.target.value)}
                     className="px-4 py-2 w-64 sm:w-72 rounded-lg border border-yellow-400 focus:ring-2 focus:ring-yellow-500 focus:outline-none text-gray-700 text-lg shadow-sm"
                 />
                 <button
                     type="submit"
                     className="px-6 py-2 bg-yellow-500 hover:bg-yellow-600 text-white font-bold rounded-lg shadow-md transition-all transform hover:scale-105 active:scale-95"
                 >
-                    Join Game
+                    Join Sanctum
                 </button>
             </motion.form>
 
@@ -67,4 +68,4 @@ const Home: React.FC = () => {
     );
 };
 
-export default Home;
+export default Atrium;

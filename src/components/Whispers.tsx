@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import useSeer from "../hooks/useSeer";
 import useSocket from "../hooks/useSocket";
 
-const ChatWindow: React.FC = () => {
+const Whispers: React.FC = () => {
     const [message, setMessage] = useState("");
     const [messages, setMessages] = useState<{ epithet: string; text: string }[]>([]);
     const socket = useSocket();
@@ -60,4 +60,4 @@ const ChatWindow: React.FC = () => {
     );
 };
 
-export default ChatWindow;
+export default Whispers;

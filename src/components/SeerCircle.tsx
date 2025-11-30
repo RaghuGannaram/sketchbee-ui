@@ -1,7 +1,7 @@
 import React from "react";
 
-const ActivePlayersList: React.FC = () => {
+const SeerCircle: React.FC = () => {
     return <div className="w-full h-full"></div>;
 };
 
-export default ActivePlayersList;
+export default SeerCircle;

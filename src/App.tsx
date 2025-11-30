@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { SocketProvider } from "./contexts/SocketContext";
-import Home from "./pages/Home";
-import Game from "./pages/Game";
+import Atrium from "./pages/Atrium";
+import Sanctum from "./pages/Sanctum";
 import useSeer from "./hooks/useSeer";
 import "./App.css";
 
@@ -14,8 +14,8 @@ export default function App() {
         <SocketProvider>
             <Router>
                 <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/game" element={<Game />} />
+                    <Route path="/" element={<Atrium />} />
+                    <Route path="/sanctum" element={<Sanctum />} />
                 </Routes>
             </Router>
         </SocketProvider>

@@ -1,21 +1,18 @@
-// src/components/BrushControls.tsx
 import React from "react";
 import { Eraser, Brush, Palette, Undo2, Redo2, Trash2 } from "lucide-react";
 import useStylus from "../hooks/useStylus";
 
-const BrushControls: React.FC = () => {
+const Artifacts: React.FC = () => {
+    const tip = useStylus((state) => state.tip);
     const gauge = useStylus((state) => state.gauge);
     const pigment = useStylus((state) => state.pigment);
-    const tip = useStylus((state) => state.tip);
 
-    const { switchTip, adjustGauge, mixPigment, revoke, invoke, banish } = useStylus((state) => ({
-        switchTip: state.setTip,
-        adjustGauge: state.setGauge,
-        mixPigment: state.setPigment,
-        revoke: state.revoke,
-        invoke: state.invoke,
-        banish: state.banish,
-    }));
+    const switchTip = useStylus((state) => state.setTip);
+    const adjustGauge = useStylus((state) => state.setGauge);
+    const mixPigment = useStylus((state) => state.setPigment);
+    const revoke = useStylus((state) => state.revoke);
+    const invoke = useStylus((state) => state.invoke);
+    const banish = useStylus((state) => state.banish);
 
     return (
         <div className="w-full h-full flex flex-col sm:flex-row justify-between items-center gap-4">
@@ -99,4 +96,4 @@ const BrushControls: React.FC = () => {
     );
 };
 
-export default BrushControls;
+export default Artifacts;
