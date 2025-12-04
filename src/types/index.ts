@@ -7,10 +7,12 @@ export interface ISigil {
     width: number;
 }
 
-export enum ChamberPhase {
-    GATHERING = "GATHERING",
-    INVOKING = "INVOKING",
-    MANIFESTING = "MANIFESTING",
-    REVEALING = "REVEALING",
-    SEALED = "SEALED",
-}
+export const ChamberPhase = {
+    GATHERING: "GATHERING",
+    INVOKING: "INVOKING",
+    MANIFESTING: "MANIFESTING",
+    REVEALING: "REVEALING",
+    SEALED: "SEALED",
+} as const;
+
+export type ChamberPhase = (typeof ChamberPhase)[keyof typeof ChamberPhase];

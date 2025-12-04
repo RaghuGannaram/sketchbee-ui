@@ -1,39 +1,35 @@
-// src/stores/ritual.store.ts
 import { create } from "zustand";
-import { ChamberPhase, ISigil } from "../types/arcane.types";
+import { ChamberPhase } from "../types";
 
-interface RitualState {
+export interface IRitualState {
     phase: ChamberPhase;
     casterId: string | null;
-    omen: string | null; // The hint
-    
-    // The shared drawing lines (Vector data, not images)
-    sigils: ISigil[]; 
+    omen: string | null;
+}
 
+export interface IRitualActions {
     setPhase: (phase: ChamberPhase) => void;
-    setOmen: (omen: string) => void;
     setCaster: (casterId: string) => void;
-    
-    addSigil: (sigil: ISigil) => void;
+    setOmen: (omen: string) => void;
+
     resetRitual: () => void;
 }
 
-export const useRitualStore = create<RitualState>((set) => ({
+export type IRitualStore = IRitualState & IRitualActions;
+
+export const ritualStore = create<IRitualStore>((set) => ({
     phase: ChamberPhase.GATHERING,
     casterId: null,
     omen: null,
-    sigils: [],
 
     setPhase: (phase) => set({ phase }),
     setOmen: (omen) => set({ omen }),
     setCaster: (casterId) => set({ casterId }),
 
-    addSigil: (sigil) => set((state) => ({ sigils: [...state.sigils, sigil] })),
-    
-    resetRitual: () => set({ 
-        phase: ChamberPhase.GATHERING, 
-        sigils: [], 
-        omen: null, 
-        casterId: null 
-    }),
+    resetRitual: () =>
+        set({
+            phase: ChamberPhase.GATHERING,
+            omen: null,
+            casterId: null,
+        }),
 }));
