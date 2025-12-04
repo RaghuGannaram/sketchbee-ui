@@ -10,9 +10,10 @@ export interface ISeerState {
     guise: string;
 
     essence: number;
-    currentEssence: number;
+
     isCaster: boolean;
     hasUnveiled: boolean;
+    currentEssence: number;
 }
 
 export interface ISeerActions {
@@ -27,15 +28,15 @@ export interface ISeerStore extends ISeerState, ISeerActions {}
 export const seerStore = createStore<ISeerStore>()(
     persist(
         (set) => ({
-            chamberId: null,
-            socketId: null,
             seerId: null,
+            socketId: null,
+            chamberId: null,
             epithet: "",
             guise: "",
             essence: 0,
-            currentEssence: 0,
             isCaster: false,
             hasUnveiled: false,
+            currentEssence: 0,
 
             incarnate: (epithet) =>
                 set((_state) => ({
@@ -44,16 +45,14 @@ export const seerStore = createStore<ISeerStore>()(
                 })),
 
             tether: (response) =>
-                set((state) => {
+                set((_state) => {
                     const seerData = response.seer;
-                    const chamberId = response.chamberId;
-
                     return {
-                        chamberId: chamberId,
+                        seerId: seerData.seerId,
                         socketId: seerData.socketId,
-                        seerId: state.seerId || seerData.seerId,
-                        epithet: state.epithet || seerData.epithet,
-                        guise: state.guise || seerData.guise,
+                        chamberId: seerData.chamberId,
+                        epithet: seerData.epithet,
+                        guise: seerData.guise,
                         essence: seerData.essence,
                         currentEssence: seerData.currentEssence,
                         isCaster: seerData.isCaster,
@@ -63,12 +62,12 @@ export const seerStore = createStore<ISeerStore>()(
 
             sever: () =>
                 set(() => ({
-                    chamberId: null,
                     socketId: null,
+                    chamberId: null,
                     essence: 0,
-                    currentEssence: 0,
                     isCaster: false,
                     hasUnveiled: false,
+                    currentEssence: 0,
                 })),
 
             transmute: (updates) =>
@@ -80,11 +79,8 @@ export const seerStore = createStore<ISeerStore>()(
         {
             name: "sketchbee:seer",
             partialize: (state) => ({
-                seerId: state.seerId,
                 epithet: state.epithet,
                 guise: state.guise,
-                essence: state.essence,
-                chamberId: state.chamberId,
             }),
         }
     )

@@ -95,7 +95,7 @@ const Vellum: React.FC = () => {
         }, 50);
 
         return () => clearInterval(pulse);
-    }, []);
+    }, [chamberId, seerId]);
 
     useEffect(() => {
         const handleManifestVellum = (data: { chamberId: string; casterId: string; sigils: ISigil[] }) => {
@@ -112,7 +112,7 @@ const Vellum: React.FC = () => {
         return () => {
             unsubscribe();
         };
-    }, []);
+    }, [chamberId, seerId]);
 
     useEffect(() => {
         const handleShiftVellum = (data: { chamberId: string; casterId: string; vision: string }) => {
@@ -138,7 +138,7 @@ const Vellum: React.FC = () => {
         return () => {
             unsubscribe();
         };
-    }, []);
+    }, [chamberId, seerId]);
 
     useEffect(() => {
         const handleClearVellum = (data: { chamberId: string; casterId: string }) => {
@@ -159,7 +159,7 @@ const Vellum: React.FC = () => {
         return () => {
             unsubscribe();
         };
-    }, []);
+    }, [chamberId, seerId]);
 
     const performStroke = useCallback(
         (
