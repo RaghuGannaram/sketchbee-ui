@@ -5,6 +5,7 @@ import useSocket from "../hooks/useSocket";
 export interface ISeer {
     seerId: string;
     socketId: string;
+    chamberId?: string;
     epithet: string;
     guise: string;
     essence: number;

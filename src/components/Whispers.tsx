@@ -11,12 +11,17 @@ interface IWhisper {
 }
 
 const Whispers: React.FC = () => {
-    const [draft, setDraft] = useState("");
-    const [whispers, setWhispers] = useState<IWhisper[]>([]);
     const { emit, subscribe } = useSocket();
     const epithet = useSeer((state) => state.epithet);
     const chamberId = useSeer((state) => state.chamberId);
+
+    const [draft, setDraft] = useState("");
+    const [whispers, setWhispers] = useState<IWhisper[]>([]);
     const endOfScrollRef = useRef<HTMLDivElement>(null);
+
+    const formatTime = (ts: number) => {
+        return new Date(ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    };
 
     useEffect(() => {
         const handleNewWhisper = (data: IWhisper) => {
@@ -71,22 +76,20 @@ const Whispers: React.FC = () => {
                     </div>
                 )}
 
-                {whispers.map((msg, index) => {
-                    const isMe = msg.epithet === epithet;
+                {whispers.map((whisper, index) => {
+                    const isMe = whisper.epithet === epithet;
 
                     return (
                         <div key={index} className={`flex flex-col ${isMe ? "items-end" : "items-start"}`}>
-                            {/* Author Name (Only show for others) */}
                             {!isMe && (
                                 <span className="text-[10px] text-gray-500 mb-1 ml-1 uppercase tracking-wider font-semibold">
-                                    {msg.epithet}
+                                    {whisper.epithet}
                                 </span>
                             )}
 
-                            {/* Bubble */}
                             <div
                                 className={`
-                                max-w-[85%] px-3 py-2 rounded-lg text-sm shadow-sm
+                                max-w-[85%] px-3 py-2 rounded-lg text-sm shadow-sm flex flex-col items-end gap-1
                                 ${
                                     isMe
                                         ? "bg-yellow-500 text-white rounded-tr-none"
@@ -94,7 +97,15 @@ const Whispers: React.FC = () => {
                                 }
                             `}
                             >
-                                {msg.script}
+                                <span className="text-left w-full">{whisper.script}</span>
+
+                                <span
+                                    className={`text-[10px] leading-none ${
+                                        isMe ? "text-yellow-100/80" : "text-gray-400"
+                                    }`}
+                                >
+                                    {formatTime(whisper.timestamp)}
+                                </span>
                             </div>
                         </div>
                     );
@@ -116,7 +127,7 @@ const Whispers: React.FC = () => {
                     <button
                         onClick={castWhisper}
                         disabled={!draft.trim()}
-                        className="p-2 bg-yellow-500 hover:bg-yellow-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-md transition-colors shadow-sm"
+                        className="py-2 px-4 bg-yellow-500 hover:bg-yellow-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-md transition-colors shadow-sm"
                     >
                         <Send className="w-4 h-4" />
                     </button>

@@ -6,14 +6,16 @@ import useSeer from "../hooks/useSeer";
 
 const Atrium: React.FC = () => {
     const navigate = useNavigate();
+
     const epithet = useSeer((state) => state.epithet);
     const incarnate = useSeer((state) => state.incarnate);
-    const [neoEpithet, setNeoEpithet] = useState(epithet || "");
     const { emit } = useSocket();
 
+    const [neoEpithet, setNeoEpithet] = useState(epithet ?? "");
+
     useEffect(() => {
-        emit("sys:greet", { greeting: "Hello server..!" }, (response: any) => {
-            console.log(`sketchbee-log: server greeted at ___${new Date(response.serverTime)}___ :`, response.greeting);
+        emit("sys:greet", { greeting: "Hello server..!" }, (response: { greeting: string; timestamp: number }) => {
+            console.log(`sketchbee-log: server greeted at ___${new Date(response.timestamp)}___ :`, response.greeting);
         });
     }, []);
 
