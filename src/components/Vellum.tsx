@@ -23,6 +23,7 @@ const Vellum: React.FC = () => {
 
     const chamberId = useSeer((state) => state.chamberId);
     const seerId = useSeer((state) => state.seerId);
+    const isCaster = useSeer((state) => state.isCaster);
 
     const { emit, subscribe } = useSocket();
 
@@ -231,15 +232,19 @@ const Vellum: React.FC = () => {
     };
 
     return (
-        <canvas
-            ref={canvasRef}
-            onMouseDown={engageStylus}
-            onMouseMove={wieldStylus}
-            onMouseUp={disengageStylus}
-            onMouseLeave={disengageStylus}
-            className="w-full h-full bg-white border border-yellow-300 rounded-lg shadow-md cursor-pointer touch-none"
-            style={{ cursor: cursorStyle }}
-        />
+        <div
+            className={`relative w-full h-full ${isCaster ? "cursor-crosshair" : "pointer-events-none cursor-default"}`}
+        >
+            <canvas
+                ref={canvasRef}
+                onMouseDown={engageStylus}
+                onMouseMove={wieldStylus}
+                onMouseUp={disengageStylus}
+                onMouseLeave={disengageStylus}
+                className="w-full h-full bg-white border border-yellow-300 rounded-lg shadow-md cursor-pointer touch-none"
+                style={{ cursor: cursorStyle }}
+            />
+        </div>
     );
 };
 

@@ -79,10 +79,13 @@ export const seerStore = createStore<ISeerStore>()(
         }),
         {
             name: "sketchbee:seer",
-            partialize: (state) => {
-                // const { socketId, ...rest } = state;
-                return state;
-            },
+            partialize: (state) => ({
+                seerId: state.seerId,
+                epithet: state.epithet,
+                guise: state.guise,
+                essence: state.essence,
+                chamberId: state.chamberId,
+            }),
         }
     )
 );

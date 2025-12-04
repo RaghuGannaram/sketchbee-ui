@@ -1,5 +1,5 @@
 import React from "react";
-import { Eraser, Brush, Palette, Undo2, Redo2, Trash2 } from "lucide-react";
+import { Eraser, Brush, Palette, Undo2, Redo2, Trash2, Eye } from "lucide-react";
 import useStylus from "../hooks/useStylus";
 import useSeer from "../hooks/useSeer";
 import useSocket from "../hooks/useSocket";
@@ -18,6 +18,7 @@ const Artifacts: React.FC = () => {
 
     const chamberId = useSeer((state) => state.chamberId);
     const seerId = useSeer((state) => state.seerId);
+    const isCaster = useSeer((state) => state.isCaster);
 
     const { emit } = useSocket();
 
@@ -41,6 +42,20 @@ const Artifacts: React.FC = () => {
 
         emit("rune:void", { chamberId, casterId: seerId });
     };
+
+    if (!isCaster) {
+        return (
+            <div className="w-full flex items-center justify-between p-3 mt-10 bg-white/60 backdrop-blur-sm rounded-xl border border-yellow-200 shadow-sm">
+                <div className="flex items-center gap-3 text-yellow-900/60">
+                    <Eye className="w-5 h-5" />
+                    <span className="font-serif font-medium tracking-wide">Witnessing the Ritual...</span>
+                </div>
+                <div className="px-3 py-1 bg-yellow-100/50 rounded text-xs font-mono text-yellow-800 border border-yellow-200">
+                    Wait for your turn
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="w-full h-full flex flex-col sm:flex-row justify-between items-center gap-4">
