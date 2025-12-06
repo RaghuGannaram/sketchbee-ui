@@ -20,7 +20,6 @@ const Sanctum: React.FC = () => {
     const sever = useSeer((state) => state.sever);
     const phase = useRitual((state) => state.phase);
     const setPhase = useRitual((state) => state.setPhase);
-    const casterId = useRitual((state) => state.casterId);
     const setCaster = useRitual((state) => state.setCaster);
     const { emit, subscribe } = useSocket();
 
@@ -50,8 +49,14 @@ const Sanctum: React.FC = () => {
 
     useEffect(() => {
         if (phase === RitualPhase.DIVINATION) {
-            emit("ritual:prepare", { chamberId: chamberId }, (response: any) => {
-                console.error("sketchbee-error: failed to divine... Kindly rejoin...", response.message);
+            console.log("sketchbee-log: quorum has been reached. Preparing ritual");
+
+            emit("ritual:prepare", { chamberId: chamberId }, (response: { ok: boolean; message: string }) => {
+                if (response.ok) {
+                    console.log("sketchbee-log: ritual prepared..!");
+                } else {
+                    console.error("sketchbee-error: failed to prepare ritual, ", response.message);
+                }
             });
         }
     }, [phase]);
@@ -67,19 +72,25 @@ const Sanctum: React.FC = () => {
         return () => {
             unsubscribe();
         };
-    }, [subscribe]);
+    }, [setCaster, subscribe]);
 
     useEffect(() => {
         const handleProphecySelection = (data: { casterId: string; prophecies: string[] }) => {
             if (data.casterId !== seerId) return;
 
-            console.log("sketchbee-log: prophecies: ", data.prophecies);
-
             //TODO : ask user to select a prophecy
 
-            emit("ritual:prophecy", { chamberId: chamberId, prophecies: data.prophecies[0] }, (response: any) => {
-                console.error("sketchbee-error: failed to divine... Kindly rejoin...", response.message);
-            });
+            emit(
+                "ritual:prophecy",
+                { chamberId: chamberId, casterId: seerId, prophecy: data.prophecies[0] },
+                (response: any) => {
+                    if (response.ok) {
+                        console.log("sketchbee-log: prophecy selected: ", data.prophecies[0]);
+                    } else {
+                        console.error("sketchbee-error: failed to select prophecy: ", response.message);
+                    }
+                }
+            );
         };
 
         const unsubscribe = subscribe("ritual:prophecies", handleProphecySelection);
@@ -87,7 +98,7 @@ const Sanctum: React.FC = () => {
         return () => {
             unsubscribe();
         };
-    });
+    }, [chamberId, seerId, subscribe]);
 
     return (
         <div className="min-h-screen w-full flex flex-col px-12 py-2 bg-linear-to-br from-yellow-100 via-amber-50 to-orange-100 overflow-hidden">

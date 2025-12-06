@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Wand2, Eye, Trophy } from "lucide-react";
 import useSocket from "../hooks/useSocket";
+import useRitual from "../hooks/useRitual";
 
 export interface ISeer {
     seerId: string;
@@ -17,6 +18,7 @@ export interface ISeer {
 const SeerCircle: React.FC = () => {
     const [seers, setSeers] = useState<ISeer[]>([]);
     const { subscribe } = useSocket();
+    const casterId = useRitual((state) => state.casterId);
 
     useEffect(() => {
         const handleChamberUpdate = (data: { seers: ISeer[] }) => {
@@ -50,7 +52,7 @@ const SeerCircle: React.FC = () => {
                                     ? "bg-green-100 border border-green-200"
                                     : "bg-white border border-transparent hover:bg-yellow-50"
                             }
-                            ${seer.isCaster ? "ring-2 ring-yellow-400 bg-yellow-50" : ""}
+                            ${seer.seerId === casterId ? "ring-2 ring-yellow-400 bg-yellow-50" : ""}
                         `}
                     >
                         <div className="relative">
@@ -60,7 +62,7 @@ const SeerCircle: React.FC = () => {
                                 className="w-10 h-10 rounded-full bg-yellow-200 object-cover border border-yellow-300 flex items-center justify-center text-black uppercase text-sm"
                             />
 
-                            {seer.isCaster && (
+                            {seer.seerId === casterId  && (
                                 <div
                                     className="absolute -top-1 -right-1 bg-yellow-500 text-white rounded-full p-0.5 shadow-sm"
                                     title="Currently Inscribing"
