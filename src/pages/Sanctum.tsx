@@ -7,6 +7,8 @@ import Whispers from "../components/Whispers";
 import Artifacts from "../components/Artifacts";
 import useSocket from "../hooks/useSocket";
 import useSeer from "../hooks/useSeer";
+import useRitual from "../hooks/useRitual";
+import { RitualPhase } from "../types";
 
 const Sanctum: React.FC = () => {
     const navigate = useNavigate();
@@ -16,7 +18,11 @@ const Sanctum: React.FC = () => {
     const chamberId = useSeer((state) => state.chamberId);
     const tether = useSeer((state) => state.tether);
     const sever = useSeer((state) => state.sever);
-    const { emit } = useSocket();
+    const phase = useRitual((state) => state.phase);
+    const setPhase = useRitual((state) => state.setPhase);
+    const casterId = useRitual((state) => state.casterId);
+    const setCaster = useRitual((state) => state.setCaster);
+    const { emit, subscribe } = useSocket();
 
     useEffect(() => {
         if (!epithet) {
@@ -31,10 +37,57 @@ const Sanctum: React.FC = () => {
                 sever();
                 return navigate("/");
             }
+
             tether(response);
+
+            if (response.hasReachedQuorum) {
+                setPhase(RitualPhase.DIVINATION);
+            }
+
             console.log("sketchbee-log: joined chamber: ", response);
         });
     }, []);
+
+    useEffect(() => {
+        if (phase === RitualPhase.DIVINATION) {
+            emit("ritual:prepare", { chamberId: chamberId }, (response: any) => {
+                console.error("sketchbee-error: failed to divine... Kindly rejoin...", response.message);
+            });
+        }
+    }, [phase]);
+
+    useEffect(() => {
+        const handleRitualPrepared = (data: { casterId: string }) => {
+            setCaster(data.casterId);
+            console.log("sketchbee-log: choosing the word of the seer: ", data.casterId);
+        };
+
+        const unsubscribe = subscribe("ritual:prepared", handleRitualPrepared);
+
+        return () => {
+            unsubscribe();
+        };
+    }, [subscribe]);
+
+    useEffect(() => {
+        const handleProphecySelection = (data: { casterId: string; prophecies: string[] }) => {
+            if (data.casterId !== seerId) return;
+
+            console.log("sketchbee-log: prophecies: ", data.prophecies);
+
+            //TODO : ask user to select a prophecy
+
+            emit("ritual:prophecy", { chamberId: chamberId, prophecies: data.prophecies[0] }, (response: any) => {
+                console.error("sketchbee-error: failed to divine... Kindly rejoin...", response.message);
+            });
+        };
+
+        const unsubscribe = subscribe("ritual:prophecies", handleProphecySelection);
+
+        return () => {
+            unsubscribe();
+        };
+    });
 
     return (
         <div className="min-h-screen w-full flex flex-col px-12 py-2 bg-linear-to-br from-yellow-100 via-amber-50 to-orange-100 overflow-hidden">

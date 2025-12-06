@@ -1,14 +1,15 @@
 import { create } from "zustand";
-import { ChamberPhase } from "../types";
+import { RitualPhase, type RitualPhaseType } from "../types";
 
 export interface IRitualState {
-    phase: ChamberPhase;
-    casterId: string | null;
+    phase: RitualPhaseType;
     omen: string | null;
+    casterId: string | null;
+    unvailedSeers:any[]
 }
 
 export interface IRitualActions {
-    setPhase: (phase: ChamberPhase) => void;
+    setPhase: (phase: RitualPhaseType) => void;
     setCaster: (casterId: string) => void;
     setOmen: (omen: string) => void;
 
@@ -18,9 +19,10 @@ export interface IRitualActions {
 export type IRitualStore = IRitualState & IRitualActions;
 
 export const ritualStore = create<IRitualStore>((set) => ({
-    phase: ChamberPhase.GATHERING,
+    phase: RitualPhase.CONGREGATION,
     casterId: null,
     omen: null,
+    unvailedSeers:[],
 
     setPhase: (phase) => set({ phase }),
     setOmen: (omen) => set({ omen }),
@@ -28,7 +30,7 @@ export const ritualStore = create<IRitualStore>((set) => ({
 
     resetRitual: () =>
         set({
-            phase: ChamberPhase.GATHERING,
+            phase: RitualPhase.CONGREGATION,
             omen: null,
             casterId: null,
         }),
