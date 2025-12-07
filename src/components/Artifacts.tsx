@@ -3,6 +3,8 @@ import { Eraser, Brush, Palette, Undo2, Redo2, Trash2, Eye } from "lucide-react"
 import useStylus from "../hooks/useStylus";
 import useSeer from "../hooks/useSeer";
 import useSocket from "../hooks/useSocket";
+import useRitual from "../hooks/useRitual";
+import { RitualPhase } from "../types";
 
 const Artifacts: React.FC = () => {
     const tip = useStylus((state) => state.tip);
@@ -19,6 +21,9 @@ const Artifacts: React.FC = () => {
     const chamberId = useSeer((state) => state.chamberId);
     const seerId = useSeer((state) => state.seerId);
     const isCaster = useSeer((state) => state.isCaster);
+    const casterId = useRitual((state) => state.casterId);
+
+    const phase = useRitual((state) => state.phase);
 
     const { emit } = useSocket();
 
@@ -43,7 +48,7 @@ const Artifacts: React.FC = () => {
         emit("rune:void", { chamberId, casterId: seerId });
     };
 
-    if (!isCaster) {
+    if (casterId !== seerId || phase !== RitualPhase.MANIFESTATION) {
         return (
             <div className="w-full flex items-center justify-between p-3 mt-10 bg-white/60 backdrop-blur-sm rounded-xl border border-yellow-200 shadow-sm">
                 <div className="flex items-center gap-3 text-yellow-900/60">

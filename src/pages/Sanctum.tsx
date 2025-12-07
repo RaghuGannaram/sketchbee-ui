@@ -21,6 +21,8 @@ const Sanctum: React.FC = () => {
     const phase = useRitual((state) => state.phase);
     const setPhase = useRitual((state) => state.setPhase);
     const setCaster = useRitual((state) => state.setCaster);
+    const prophecy = useRitual((state) => state.prophecy);
+    const setProphecy = useRitual((state) => state.setProphecy);
     const { emit, subscribe } = useSocket();
 
     useEffect(() => {
@@ -79,12 +81,14 @@ const Sanctum: React.FC = () => {
             if (data.casterId !== seerId) return;
 
             //TODO : ask user to select a prophecy
+            alert("Select a prophecy: " + data.prophecies.join(", "));
 
             emit(
                 "ritual:prophecy",
                 { chamberId: chamberId, casterId: seerId, prophecy: data.prophecies[0] },
                 (response: any) => {
                     if (response.ok) {
+                        setProphecy(data.prophecies[0]);
                         console.log("sketchbee-log: prophecy selected: ", data.prophecies[0]);
                     } else {
                         console.error("sketchbee-error: failed to select prophecy: ", response.message);
@@ -100,6 +104,19 @@ const Sanctum: React.FC = () => {
         };
     }, [chamberId, seerId, subscribe]);
 
+    useEffect(() => {
+        const unsubscribe = subscribe("ritual:started", () => {
+            console.log("sketchbee-log: ritual started");
+            setTimeout(() => setPhase(RitualPhase.MANIFESTATION), 1000);
+            // setPhase(RitualPhase.MANIFESTATION);
+        });
+
+        return () => {
+            unsubscribe();
+        };
+    }, [setPhase, subscribe]);
+
+
     return (
         <div className="min-h-screen w-full flex flex-col px-12 py-2 bg-linear-to-br from-yellow-100 via-amber-50 to-orange-100 overflow-hidden">
             <nav className="h-16 flex justify-between items-center">
@@ -112,6 +129,17 @@ const Sanctum: React.FC = () => {
                     </button>
                     Back
                 </span>
+                <div>
+                    {phase === RitualPhase.CONGREGATION && <span>Phase: Congregation</span>}
+                    {phase === RitualPhase.DIVINATION && <span>Phase: Divination</span>}
+                    {phase === RitualPhase.INVOCATION && <span>Phase: Invocation</span>}
+                    {phase === RitualPhase.MANIFESTATION && <span>Phase: Manifestation</span>}
+                    {phase === RitualPhase.REVELATION && <span>Phase: Revealing</span>}
+                    {phase === RitualPhase.SEALED && <span>Phase: Sealed</span>}
+                </div>
+                {
+                    prophecy && <span className="text-yellow-700 font-semibold text-lg">Prophecy: {prophecy}</span>
+                }
                 <span>Omi</span>
             </nav>
 

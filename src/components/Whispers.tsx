@@ -13,6 +13,7 @@ interface IWhisper {
 const Whispers: React.FC = () => {
     const { emit, subscribe } = useSocket();
     const epithet = useSeer((state) => state.epithet);
+    const seerId = useSeer((state) => state.seerId);
     const chamberId = useSeer((state) => state.chamberId);
 
     const [draft, setDraft] = useState("");
@@ -36,6 +37,17 @@ const Whispers: React.FC = () => {
     }, [subscribe]);
 
     useEffect(() => {
+        const unsubscribe = subscribe("rune:unvailed", (data) => {
+            setWhispers((prev) => [...prev, data]);
+            // setPhase(RitualPhase.MANIFESTATION);
+        });
+
+        return () => {
+            unsubscribe();
+        };
+    }, [subscribe]);
+
+    useEffect(() => {
         endOfScrollRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [whispers]);
 
@@ -44,6 +56,7 @@ const Whispers: React.FC = () => {
 
         const payload = {
             chamberId,
+            seerId,
             epithet,
             script: draft,
         };
@@ -78,6 +91,16 @@ const Whispers: React.FC = () => {
 
                 {whispers.map((whisper, index) => {
                     const isMe = whisper.epithet === epithet;
+
+                    if (whisper.isSystem) {
+                        return (
+                            <div key={index} className="flex justify-center w-full my-3">
+                                <span className="bg-slate-200 text-slate-600 border border-slate-300 px-4 py-1.5 rounded-full text-xs font-medium tracking-wide shadow-sm text-center">
+                                    {whisper.script}
+                                </span>
+                            </div>
+                        );
+                    }
 
                     return (
                         <div key={index} className={`flex flex-col ${isMe ? "items-end" : "items-start"}`}>
