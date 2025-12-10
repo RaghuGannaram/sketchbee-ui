@@ -1,28 +1,35 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
+
 import SeerCircle from "../components/SeerCircle";
 import Vellum from "../components/Vellum";
 import Whispers from "../components/Whispers";
 import Artifacts from "../components/Artifacts";
+
 import useSocket from "../hooks/useSocket";
 import useSeer from "../hooks/useSeer";
 import useRitual from "../hooks/useRitual";
-import { RitualPhase } from "../types";
+
+import { ISeer, Rites } from "../types";
 
 const Sanctum: React.FC = () => {
     const navigate = useNavigate();
+
     const epithet = useSeer((state) => state.epithet);
     const guise = useSeer((state) => state.guise);
     const seerId = useSeer((state) => state.seerId);
     const chamberId = useSeer((state) => state.chamberId);
     const tether = useSeer((state) => state.tether);
     const sever = useSeer((state) => state.sever);
-    const phase = useRitual((state) => state.phase);
-    const setPhase = useRitual((state) => state.setPhase);
-    const setCaster = useRitual((state) => state.setCaster);
-    const prophecy = useRitual((state) => state.prophecy);
-    const setProphecy = useRitual((state) => state.setProphecy);
+
+    const rite = useRitual((state) => state.rite);
+    const enigma = useRitual((state) => state.enigma);
+    const setRite = useRitual((state) => state.setRite);
+    const setEnigma = useRitual((state) => state.setEnigma);
+    const setOmen = useRitual((state) => state.setOmen);
+    const setCasterSignature = useRitual((state) => state.setCasterSignature);
+
     const { emit, subscribe } = useSocket();
 
     useEffect(() => {
@@ -32,41 +39,48 @@ const Sanctum: React.FC = () => {
     }, [epithet]);
 
     useEffect(() => {
-        emit("chamber:join", { epithet, guise, seerId, chamberId }, (response: any) => {
-            if (!response.ok) {
-                console.error("sketchbee-error: failed to join chamber: ", response.message);
-                sever();
-                return navigate("/");
+        emit(
+            "chamber:join",
+            { epithet, guise, seerId, chamberId },
+            (response: { ok: boolean; message: string; seer: ISeer | null; hasReachedQuorum: boolean }) => {
+                if (!response.ok) {
+                    console.error("sketchbee-error: failed to join chamber: ", response.message);
+
+                    sever();
+                    return navigate("/");
+                }
+                console.log(
+                    "sketchbee-log: joined chamber %s as %s: ",
+                    response.seer!.chamberId,
+                    response.seer!.seerId
+                );
+
+                tether(response);
+
+                if (response.hasReachedQuorum) {
+                    setRite(Rites.DIVINATION);
+                }
             }
-
-            tether(response);
-
-            if (response.hasReachedQuorum) {
-                setPhase(RitualPhase.DIVINATION);
-            }
-
-            console.log("sketchbee-log: joined chamber: ", response);
-        });
+        );
     }, []);
 
     useEffect(() => {
-        if (phase === RitualPhase.DIVINATION) {
-            console.log("sketchbee-log: quorum has been reached. Preparing ritual");
-
+        if (rite === Rites.DIVINATION) {
             emit("ritual:prepare", { chamberId: chamberId }, (response: { ok: boolean; message: string }) => {
                 if (response.ok) {
-                    console.log("sketchbee-log: ritual prepared..!");
+                    console.log("sketchbee-log: ritual has been prepared..!");
                 } else {
                     console.error("sketchbee-error: failed to prepare ritual, ", response.message);
                 }
             });
         }
-    }, [phase]);
+    }, [rite]);
 
     useEffect(() => {
         const handleRitualPrepared = (data: { casterId: string }) => {
-            setCaster(data.casterId);
             console.log("sketchbee-log: choosing the word of the seer: ", data.casterId);
+
+            setCasterSignature(data.casterId);
         };
 
         const unsubscribe = subscribe("ritual:prepared", handleRitualPrepared);
@@ -74,7 +88,7 @@ const Sanctum: React.FC = () => {
         return () => {
             unsubscribe();
         };
-    }, [setCaster, subscribe]);
+    }, [setCasterSignature, subscribe]);
 
     useEffect(() => {
         const handleProphecySelection = (data: { casterId: string; prophecies: string[] }) => {
@@ -88,8 +102,9 @@ const Sanctum: React.FC = () => {
                 { chamberId: chamberId, casterId: seerId, prophecy: data.prophecies[0] },
                 (response: any) => {
                     if (response.ok) {
-                        setProphecy(data.prophecies[0]);
                         console.log("sketchbee-log: prophecy selected: ", data.prophecies[0]);
+
+                        setEnigma(data.prophecies[0]);
                     } else {
                         console.error("sketchbee-error: failed to select prophecy: ", response.message);
                     }
@@ -105,17 +120,17 @@ const Sanctum: React.FC = () => {
     }, [chamberId, seerId, subscribe]);
 
     useEffect(() => {
-        const unsubscribe = subscribe("ritual:started", () => {
+        const unsubscribe = subscribe("ritual:started", (data: { casterId: string; omen: string }) => {
             console.log("sketchbee-log: ritual started");
-            setTimeout(() => setPhase(RitualPhase.MANIFESTATION), 1000);
-            // setPhase(RitualPhase.MANIFESTATION);
+
+            setRite(Rites.MANIFESTATION);
+            setOmen(data.omen);
         });
 
         return () => {
             unsubscribe();
         };
-    }, [setPhase, subscribe]);
-
+    }, [setRite, setOmen, subscribe]);
 
     return (
         <div className="min-h-screen w-full flex flex-col px-12 py-2 bg-linear-to-br from-yellow-100 via-amber-50 to-orange-100 overflow-hidden">
@@ -130,16 +145,13 @@ const Sanctum: React.FC = () => {
                     Back
                 </span>
                 <div>
-                    {phase === RitualPhase.CONGREGATION && <span>Phase: Congregation</span>}
-                    {phase === RitualPhase.DIVINATION && <span>Phase: Divination</span>}
-                    {phase === RitualPhase.INVOCATION && <span>Phase: Invocation</span>}
-                    {phase === RitualPhase.MANIFESTATION && <span>Phase: Manifestation</span>}
-                    {phase === RitualPhase.REVELATION && <span>Phase: Revealing</span>}
-                    {phase === RitualPhase.SEALED && <span>Phase: Sealed</span>}
+                    {rite === Rites.CONGREGATION && <span>Phase: Congregation</span>}
+                    {rite === Rites.DIVINATION && <span>Phase: Divination</span>}
+                    {rite === Rites.MANIFESTATION && <span>Phase: Manifestation</span>}
+                    {rite === Rites.REVELATION && <span>Phase: Revealing</span>}
+                    {rite === Rites.SEALED && <span>Phase: Sealed</span>}
                 </div>
-                {
-                    prophecy && <span className="text-yellow-700 font-semibold text-lg">Prophecy: {prophecy}</span>
-                }
+                {enigma && <span className="text-yellow-700 font-semibold text-lg">Prophecy: {enigma}</span>}
                 <span>Omi</span>
             </nav>
 

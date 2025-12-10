@@ -2,23 +2,14 @@ import React, { useEffect, useState } from "react";
 import { Wand2, Eye, Trophy } from "lucide-react";
 import useSocket from "../hooks/useSocket";
 import useRitual from "../hooks/useRitual";
-
-export interface ISeer {
-    seerId: string;
-    socketId: string;
-    chamberId?: string;
-    epithet: string;
-    guise: string;
-    essence: number;
-    isCaster: boolean;
-    hasUnveiled: boolean;
-    currentEssence: number;
-}
+import { ISeer } from "../types";
 
 const SeerCircle: React.FC = () => {
     const [seers, setSeers] = useState<ISeer[]>([]);
     const { subscribe } = useSocket();
-    const casterId = useRitual((state) => state.casterId);
+    
+    const casterSignature = useRitual((state) => state.casterSignature);
+    const unvailedSeers = useRitual((state) => state.unveiledSeers);
 
     useEffect(() => {
         const handleChamberUpdate = (data: { seers: ISeer[] }) => {
@@ -48,11 +39,11 @@ const SeerCircle: React.FC = () => {
                         className={`
                             relative flex items-center gap-3 p-2 rounded-lg transition-all
                             ${
-                                seer.hasUnveiled
+                                unvailedSeers.some((s) => s.seerId === seer.seerId)
                                     ? "bg-green-100 border border-green-200"
                                     : "bg-white border border-transparent hover:bg-yellow-50"
                             }
-                            ${seer.seerId === casterId ? "ring-2 ring-yellow-400 bg-yellow-50" : ""}
+                            ${seer.seerId === casterSignature ? "ring-2 ring-yellow-400 bg-yellow-50" : ""}
                         `}
                     >
                         <div className="relative">
@@ -62,7 +53,7 @@ const SeerCircle: React.FC = () => {
                                 className="w-10 h-10 rounded-full bg-yellow-200 object-cover border border-yellow-300 flex items-center justify-center text-black uppercase text-sm"
                             />
 
-                            {seer.seerId === casterId  && (
+                            {seer.seerId === casterSignature && (
                                 <div
                                     className="absolute -top-1 -right-1 bg-yellow-500 text-white rounded-full p-0.5 shadow-sm"
                                     title="Currently Inscribing"
@@ -75,7 +66,7 @@ const SeerCircle: React.FC = () => {
                         <div className="flex-1 min-w-0">
                             <div className="flex justify-between items-center">
                                 <span className="font-medium text-gray-800 truncate text-sm">{seer.epithet}</span>
-                                {seer.hasUnveiled && (
+                                {unvailedSeers.some((s) => s.seerId === seer.seerId) && (
                                     <span title="Has Unveiled the Truth">
                                         <Eye className="w-4 h-4 text-green-600" />
                                     </span>

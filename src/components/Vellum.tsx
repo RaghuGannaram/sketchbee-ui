@@ -5,7 +5,7 @@ import useSeer from "../hooks/useSeer";
 import brushCursor from "../assets/brush-cursor.png";
 import eraserCursor from "../assets/eraser-cursor.png";
 import useRitual from "../hooks/useRitual";
-import { RitualPhase } from "../types";
+import { Rites } from "../types";
 
 interface ISigil {
     start: { x: number; y: number };
@@ -25,9 +25,8 @@ const Vellum: React.FC = () => {
 
     const chamberId = useSeer((state) => state.chamberId);
     const seerId = useSeer((state) => state.seerId);
-    const isCaster = useSeer((state) => state.isCaster);
-    const casterId = useRitual((state) => state.casterId);
-    const phase = useRitual((state) => state.phase);
+    const casterSignature = useRitual((state) => state.casterSignature);
+    const rite = useRitual((state) => state.rite);
 
     const { emit, subscribe } = useSocket();
 
@@ -238,7 +237,7 @@ const Vellum: React.FC = () => {
     return (
         <div
             className={`relative w-full h-full ${
-                casterId === seerId && phase === RitualPhase.MANIFESTATION
+                casterSignature === seerId && rite === Rites.MANIFESTATION
                     ? "cursor-crosshair"
                     : "pointer-events-none cursor-default"
             }`}

@@ -1,41 +1,54 @@
-import { create } from "zustand";
-import { RitualPhase, type RitualPhaseType } from "../types";
+import { createStore } from "zustand";
+import { persist, devtools } from "zustand/middleware";
+import { Rites, ISeer } from "../types";
 
 export interface IRitualState {
-    phase: RitualPhaseType;
+    rite: Rites;
     omen: string | null;
-    prophecy: string | null;
-    casterId: string | null;
-    unvailedSeers:any[]
+    enigma: string | null;
+    unveiledSeers: ISeer[];
+    casterSignature: string | null;
 }
 
 export interface IRitualActions {
-    setPhase: (phase: RitualPhaseType) => void;
-    setCaster: (casterId: string) => void;
-    setProphecy: (prophecy: string) => void;
+    setRite: (phase: Rites) => void;
     setOmen: (omen: string) => void;
-
+    setEnigma: (enigma: string) => void;
+    setCasterSignature: (casterId: string) => void;
+    setUnveiledSeers: (seers: ISeer[]) => void;
     resetRitual: () => void;
 }
 
-export type IRitualStore = IRitualState & IRitualActions;
+export interface IRitualStore extends IRitualState, IRitualActions {}
 
-export const ritualStore = create<IRitualStore>((set) => ({
-    phase: RitualPhase.CONGREGATION,
-    casterId: null,
+const INITIAL_STATE: IRitualState = {
+    rite: Rites.CONGREGATION,
     omen: null,
-    prophecy: null,
-    unvailedSeers:[],
+    enigma: null,
+    unveiledSeers: [],
+    casterSignature: null,
+};
 
-    setPhase: (phase) => set({ phase }),
-    setOmen: (omen) => set({ omen }),
-    setProphecy: (prophecy) => set({ prophecy }),
-    setCaster: (casterId) => set({ casterId }),
+export const RitualStore = createStore<IRitualStore>()(
+    devtools(
+        persist(
+            (set) => ({
+                ...INITIAL_STATE,
 
-    resetRitual: () =>
-        set({
-            phase: RitualPhase.CONGREGATION,
-            omen: null,
-            casterId: null,
-        }),
-}));
+                setRite: (rite) => set({ rite }, false, "setRite"),
+                setOmen: (omen) => set({ omen }, false, "setOmen"),
+                setEnigma: (enigma) => set({ enigma }, false, "setEnigma"),
+                setCasterSignature: (casterSignature) => set({ casterSignature }, false, "setCaster"),
+                setUnveiledSeers: (seers) => set({ unveiledSeers: seers }, false, "setUnveiledSeers"),
+
+                resetRitual: () => set(INITIAL_STATE, false, "resetRitual"),
+            }),
+            {
+                name: "RitualStore",
+                partialize: (state) => ({
+                    rite: state.rite,
+                }),
+            }
+        )
+    )
+);
