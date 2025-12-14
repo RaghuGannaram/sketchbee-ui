@@ -29,6 +29,8 @@ const Sanctum: React.FC = () => {
     const setEnigma = useRitual((state) => state.setEnigma);
     const setOmen = useRitual((state) => state.setOmen);
     const setCasterSignature = useRitual((state) => state.setCasterSignature);
+    const setUnveiledSeers = useRitual((state) => state.setUnveiledSeers);
+    const resetRitual = useRitual((state) => state.resetRitual);
 
     const { emit, subscribe } = useSocket();
 
@@ -39,56 +41,69 @@ const Sanctum: React.FC = () => {
     }, [epithet]);
 
     useEffect(() => {
-        emit(
-            "chamber:join",
-            { epithet, guise, seerId, chamberId },
-            (response: { ok: boolean; message: string; seer: ISeer | null; hasReachedQuorum: boolean }) => {
-                if (!response.ok) {
-                    console.error("sketchbee-error: failed to join chamber: ", response.message);
+        emit("chamber:join", { epithet, guise, seerId, chamberId }, (response: { ok: boolean; message: string; seer: ISeer | null }) => {
+            if (!response.ok) {
+                console.error("sketchbee-error: failed to join chamber: ", response.message);
 
-                    sever();
-                    return navigate("/");
-                }
-                console.log(
-                    "sketchbee-log: joined chamber %s as %s: ",
-                    response.seer!.chamberId,
-                    response.seer!.seerId
-                );
-
-                tether(response);
-
-                if (response.hasReachedQuorum) {
-                    setRite(Rites.DIVINATION);
-                }
+                sever();
+                return navigate("/");
             }
-        );
+            console.log("sketchbee-log: joined chamber %s as %s: ", response.seer!.chamberId, response.seer!.seerId);
+
+            tether(response);
+        });
     }, []);
 
     useEffect(() => {
-        if (rite === Rites.DIVINATION) {
-            emit("ritual:prepare", { chamberId: chamberId }, (response: { ok: boolean; message: string }) => {
-                if (response.ok) {
-                    console.log("sketchbee-log: ritual has been prepared..!");
-                } else {
-                    console.error("sketchbee-error: failed to prepare ritual, ", response.message);
-                }
-            });
-        }
-    }, [rite]);
+        const handleRiteProgression = (data: { rite: Rites; message: string; casterId?: string; omen?: string; enigma?: string; unveiledSeers?: ISeer[]; timeLeftMs?: number }) => {
+            console.log(`sketchbee-log: Entering Rite: ${data.rite} - ${data.message}`);
 
-    useEffect(() => {
-        const handleRitualPrepared = (data: { casterId: string }) => {
-            console.log("sketchbee-log: choosing the word of the seer: ", data.casterId);
+            setRite(data.rite);
 
-            setCasterSignature(data.casterId);
+            switch (data.rite) {
+                case Rites.CONSECRATION:
+                    if (!data.casterId) {
+                        console.error("sketchbee-error: casterId is missing in CONSECRATION rite data");
+                        return;
+                    }
+                    setCasterSignature(data.casterId);
+                    setOmen("");
+                    setEnigma("");
+                    setUnveiledSeers([]);
+                    break;
+
+                case Rites.DIVINATION:
+                    break;
+
+                case Rites.MANIFESTATION:
+                    if (data.omen) setOmen(data.omen);
+                    break;
+
+                case Rites.REVELATION:
+                    if (!data.enigma) {
+                        console.error("sketchbee-error: enigma is missing in REVELATION rite data");
+                        return;
+                    }
+                    if (!data.unveiledSeers) {
+                        console.error("sketchbee-error: seers are missing in REVELATION rite data");
+                        return;
+                    }
+                    setEnigma(data.enigma);
+                    setUnveiledSeers(data.unveiledSeers);
+                    break;
+
+                case Rites.DISSOLUTION:
+                    resetRitual();
+                    break;
+            }
         };
 
-        const unsubscribe = subscribe("ritual:prepared", handleRitualPrepared);
+        const unsubscribe = subscribe("ritual:rite", handleRiteProgression);
 
         return () => {
             unsubscribe();
         };
-    }, [setCasterSignature, subscribe]);
+    }, [subscribe, setRite, setCasterSignature, setEnigma, setOmen]);
 
     useEffect(() => {
         const handleProphecySelection = (data: { casterId: string; prophecies: string[] }) => {
@@ -97,19 +112,15 @@ const Sanctum: React.FC = () => {
             //TODO : ask user to select a prophecy
             alert("Select a prophecy: " + data.prophecies.join(", "));
 
-            emit(
-                "ritual:prophecy",
-                { chamberId: chamberId, casterId: seerId, prophecy: data.prophecies[0] },
-                (response: any) => {
-                    if (response.ok) {
-                        console.log("sketchbee-log: prophecy selected: ", data.prophecies[0]);
+            emit("ritual:prophecy", { chamberId: chamberId, casterId: seerId, prophecy: data.prophecies[0] }, (response: any) => {
+                if (response.ok) {
+                    console.log("sketchbee-log: prophecy selected: ", data.prophecies[0]);
 
-                        setEnigma(data.prophecies[0]);
-                    } else {
-                        console.error("sketchbee-error: failed to select prophecy: ", response.message);
-                    }
+                    setEnigma(data.prophecies[0]);
+                } else {
+                    console.error("sketchbee-error: failed to select prophecy: ", response.message);
                 }
-            );
+            });
         };
 
         const unsubscribe = subscribe("ritual:prophecies", handleProphecySelection);
@@ -119,37 +130,22 @@ const Sanctum: React.FC = () => {
         };
     }, [chamberId, seerId, subscribe]);
 
-    useEffect(() => {
-        const unsubscribe = subscribe("ritual:started", (data: { casterId: string; omen: string }) => {
-            console.log("sketchbee-log: ritual started");
-
-            setRite(Rites.MANIFESTATION);
-            setOmen(data.omen);
-        });
-
-        return () => {
-            unsubscribe();
-        };
-    }, [setRite, setOmen, subscribe]);
-
     return (
         <div className="min-h-screen w-full flex flex-col px-12 py-2 bg-linear-to-br from-yellow-100 via-amber-50 to-orange-100 overflow-hidden">
             <nav className="h-16 flex justify-between items-center">
                 <span className="flex items-center gap-2 text-yellow-700 font-semibold text-lg">
-                    <button
-                        onClick={() => navigate("/")}
-                        className="p-1 bg-white rounded-full shadow-md hover:bg-yellow-50 transition-all"
-                    >
+                    <button onClick={() => navigate("/")} className="p-1 bg-white rounded-full shadow-md hover:bg-yellow-50 transition-all">
                         <ArrowLeft className="text-yellow-600 w-5 h-5" />
                     </button>
                     Back
                 </span>
                 <div>
                     {rite === Rites.CONGREGATION && <span>Phase: Congregation</span>}
+                    {rite === Rites.CONSECRATION && <span>Phase: Consecration</span>}
                     {rite === Rites.DIVINATION && <span>Phase: Divination</span>}
                     {rite === Rites.MANIFESTATION && <span>Phase: Manifestation</span>}
-                    {rite === Rites.REVELATION && <span>Phase: Revealing</span>}
-                    {rite === Rites.SEALED && <span>Phase: Sealed</span>}
+                    {rite === Rites.REVELATION && <span>Phase: Revelation</span>}
+                    {rite === Rites.DISSOLUTION && <span>Phase: Dissolution</span>}
                 </div>
                 {enigma && <span className="text-yellow-700 font-semibold text-lg">Prophecy: {enigma}</span>}
                 <span>Omi</span>

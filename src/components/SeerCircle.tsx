@@ -9,7 +9,7 @@ const SeerCircle: React.FC = () => {
     const { subscribe } = useSocket();
     
     const casterSignature = useRitual((state) => state.casterSignature);
-    const unvailedSeers = useRitual((state) => state.unveiledSeers);
+    const unveiledSeers = useRitual((state) => state.unveiledSeers);
 
     useEffect(() => {
         const handleChamberUpdate = (data: { seers: ISeer[] }) => {
@@ -39,7 +39,7 @@ const SeerCircle: React.FC = () => {
                         className={`
                             relative flex items-center gap-3 p-2 rounded-lg transition-all
                             ${
-                                unvailedSeers.some((s) => s.seerId === seer.seerId)
+                                unveiledSeers.some((s) => s.seerId === seer.seerId)
                                     ? "bg-green-100 border border-green-200"
                                     : "bg-white border border-transparent hover:bg-yellow-50"
                             }
@@ -66,7 +66,7 @@ const SeerCircle: React.FC = () => {
                         <div className="flex-1 min-w-0">
                             <div className="flex justify-between items-center">
                                 <span className="font-medium text-gray-800 truncate text-sm">{seer.epithet}</span>
-                                {unvailedSeers.some((s) => s.seerId === seer.seerId) && (
+                                {unveiledSeers.some((s) => s.seerId === seer.seerId) && (
                                     <span title="Has Unveiled the Truth">
                                         <Eye className="w-4 h-4 text-green-600" />
                                     </span>

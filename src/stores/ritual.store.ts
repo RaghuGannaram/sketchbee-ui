@@ -23,8 +23,8 @@ export interface IRitualStore extends IRitualState, IRitualActions {}
 
 const INITIAL_STATE: IRitualState = {
     rite: Rites.CONGREGATION,
-    omen: null,
-    enigma: null,
+    omen: "",
+    enigma: "",
     unveiledSeers: [],
     casterSignature: null,
 };

@@ -37,7 +37,7 @@ const Whispers: React.FC = () => {
     }, [subscribe]);
 
     useEffect(() => {
-        const unsubscribe = subscribe("rune:unvailed", (data) => {
+        const unsubscribe = subscribe("rune:unveiled", (data) => {
             setWhispers((prev) => [...prev, data]);
             // setPhase(RitualPhase.MANIFESTATION);
         });
