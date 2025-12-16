@@ -8,14 +8,16 @@ export interface IRitualState {
     enigma: string | null;
     unveiledSeers: ISeer[];
     casterSignature: string | null;
+    terminus: number | null;
 }
 
 export interface IRitualActions {
     setRite: (phase: Rites) => void;
     setOmen: (omen: string) => void;
     setEnigma: (enigma: string) => void;
-    setCasterSignature: (casterId: string) => void;
+    setCasterSignature: (casterId: string | null) => void;
     setUnveiledSeers: (seers: ISeer[]) => void;
+    setTerminus: (terminus: number | null) => void;
     resetRitual: () => void;
 }
 
@@ -27,28 +29,20 @@ const INITIAL_STATE: IRitualState = {
     enigma: "",
     unveiledSeers: [],
     casterSignature: null,
+    terminus: null,
 };
 
 export const RitualStore = createStore<IRitualStore>()(
-    devtools(
-        persist(
-            (set) => ({
-                ...INITIAL_STATE,
+    devtools((set) => ({
+        ...INITIAL_STATE,
 
-                setRite: (rite) => set({ rite }, false, "setRite"),
-                setOmen: (omen) => set({ omen }, false, "setOmen"),
-                setEnigma: (enigma) => set({ enigma }, false, "setEnigma"),
-                setCasterSignature: (casterSignature) => set({ casterSignature }, false, "setCaster"),
-                setUnveiledSeers: (seers) => set({ unveiledSeers: seers }, false, "setUnveiledSeers"),
+        setRite: (rite) => set({ rite }, false, "setRite"),
+        setOmen: (omen) => set({ omen }, false, "setOmen"),
+        setEnigma: (enigma) => set({ enigma }, false, "setEnigma"),
+        setCasterSignature: (casterSignature) => set({ casterSignature }, false, "setCaster"),
+        setUnveiledSeers: (seers) => set({ unveiledSeers: seers }, false, "setUnveiledSeers"),
+        setTerminus: (terminus) => set({ terminus }, false, "setTerminus"),
 
-                resetRitual: () => set(INITIAL_STATE, false, "resetRitual"),
-            }),
-            {
-                name: "RitualStore",
-                partialize: (state) => ({
-                    rite: state.rite,
-                }),
-            }
-        )
-    )
+        resetRitual: () => set(INITIAL_STATE, false, "resetRitual"),
+    }))
 );

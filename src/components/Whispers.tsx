@@ -20,9 +20,9 @@ const Whispers: React.FC = () => {
     const [whispers, setWhispers] = useState<IWhisper[]>([]);
     const endOfScrollRef = useRef<HTMLDivElement>(null);
 
-    const formatTime = (ts: number) => {
-        return new Date(ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-    };
+    // const formatTime = (ts: number) => {
+    //     return new Date(ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    // };
 
     useEffect(() => {
         const handleNewWhisper = (data: IWhisper) => {
@@ -39,7 +39,6 @@ const Whispers: React.FC = () => {
     useEffect(() => {
         const unsubscribe = subscribe("rune:unveiled", (data) => {
             setWhispers((prev) => [...prev, data]);
-            // setPhase(RitualPhase.MANIFESTATION);
         });
 
         return () => {
@@ -73,14 +72,12 @@ const Whispers: React.FC = () => {
     };
 
     return (
-        <div className="h-full flex flex-col bg-white/60 backdrop-blur-sm rounded-xl border border-yellow-200 shadow-sm overflow-hidden">
-            {/* Header */}
-            <div className="p-4 bg-yellow-100/50 border-b border-yellow-200 flex items-center gap-2">
+        <div className=" w-full h-full flex flex-col bg-white/60 backdrop-blur-sm rounded-xl border border-yellow-200 shadow-sm overflow-hidden">
+            <div className="flex items-center gap-2 p-4 bg-yellow-100/50 border-b border-yellow-200">
                 <MessageSquare className="w-5 h-5 text-yellow-700" />
                 <h2 className="font-serif font-bold text-yellow-900 tracking-wide">Whispers</h2>
             </div>
 
-            {/* Message History */}
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
                 {whispers.length === 0 && (
                     <div className="text-center text-gray-400 italic text-sm mt-10">
@@ -95,7 +92,7 @@ const Whispers: React.FC = () => {
                     if (whisper.isSystem) {
                         return (
                             <div key={index} className="flex justify-center w-full my-3">
-                                <span className="bg-slate-200 text-slate-600 border border-slate-300 px-4 py-1.5 rounded-full text-xs font-medium tracking-wide shadow-sm text-center">
+                                <span className="bg-slate-200 text-slate-600 border border-slate-300 px-4 py-2 rounded-full text-xs font-medium tracking-wide shadow-sm text-center">
                                     {whisper.script}
                                 </span>
                             </div>
@@ -104,31 +101,23 @@ const Whispers: React.FC = () => {
 
                     return (
                         <div key={index} className={`flex flex-col ${isMe ? "items-end" : "items-start"}`}>
-                            {!isMe && (
-                                <span className="text-[10px] text-gray-500 mb-1 ml-1 uppercase tracking-wider font-semibold">
-                                    {whisper.epithet}
-                                </span>
-                            )}
+                            {!isMe && <span className="text-[10px] text-gray-500 mb-1 ml-1 uppercase tracking-wider font-semibold">{whisper.epithet}</span>}
 
                             <div
                                 className={`
-                                max-w-[85%] px-3 py-2 rounded-lg text-sm shadow-sm flex flex-col items-end gap-1
-                                ${
-                                    isMe
-                                        ? "bg-yellow-500 text-white rounded-tr-none"
-                                        : "bg-white border border-yellow-100 text-gray-800 rounded-tl-none"
-                                }
+                                max-w-[85%] px-3 py-0.5 rounded-lg text-sm shadow-sm flex flex-col items-end gap-1
+                                ${isMe ? "bg-yellow-500 text-white rounded-tr-none" : "bg-white border border-yellow-100 text-gray-800 rounded-tl-none"}
                             `}
                             >
                                 <span className="text-left w-full">{whisper.script}</span>
 
-                                <span
+                                {/* <span
                                     className={`text-[10px] leading-none ${
                                         isMe ? "text-yellow-100/80" : "text-gray-400"
                                     }`}
                                 >
                                     {formatTime(whisper.timestamp)}
-                                </span>
+                                </span> */}
                             </div>
                         </div>
                     );
@@ -136,21 +125,20 @@ const Whispers: React.FC = () => {
                 <div ref={endOfScrollRef} />
             </div>
 
-            {/* Input Area */}
             <div className="p-3 bg-white/80 border-t border-yellow-200">
-                <div className="flex gap-2">
+                <div className="flex w-full gap-2 items-center">
                     <input
                         type="text"
                         value={draft}
                         onChange={(e) => setDraft(e.target.value)}
                         onKeyDown={handleKeyDown}
                         placeholder="Chant your guess..."
-                        className="flex-1 bg-yellow-50/50 border border-yellow-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:bg-white transition-all placeholder:text-yellow-700/30 text-gray-800"
+                        className="flex-1 min-w-0 bg-yellow-50/50 border border-yellow-300 rounded-md px-3 py-1.5 focus:outline-none  focus:bg-white transition-all placeholder:text-yellow-700/30 text-gray-800"
                     />
                     <button
                         onClick={castWhisper}
                         disabled={!draft.trim()}
-                        className="py-2 px-4 bg-yellow-500 hover:bg-yellow-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-md transition-colors shadow-sm"
+                        className="shrink-0 px-4 py-2.5  bg-yellow-500 hover:bg-yellow-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-md transition-colors shadow-sm flex items-center justify-center"
                     >
                         <Send className="w-4 h-4" />
                     </button>

@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
 
+import SanctumNav from "../components/SanctumNav";
 import SeerCircle from "../components/SeerCircle";
 import Vellum from "../components/Vellum";
 import Whispers from "../components/Whispers";
@@ -10,6 +10,7 @@ import Artifacts from "../components/Artifacts";
 import useSocket from "../hooks/useSocket";
 import useSeer from "../hooks/useSeer";
 import useRitual from "../hooks/useRitual";
+import useRitualTimer from "../hooks/useRitualTimer";
 
 import { ISeer, Rites } from "../types";
 
@@ -30,7 +31,10 @@ const Sanctum: React.FC = () => {
     const setOmen = useRitual((state) => state.setOmen);
     const setCasterSignature = useRitual((state) => state.setCasterSignature);
     const setUnveiledSeers = useRitual((state) => state.setUnveiledSeers);
+    const setTerminus = useRitual((state) => state.setTerminus);
     const resetRitual = useRitual((state) => state.resetRitual);
+
+    const secondsLeft = useRitualTimer();
 
     const { emit, subscribe } = useSocket();
 
@@ -55,21 +59,23 @@ const Sanctum: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        const handleRiteProgression = (data: { rite: Rites; message: string; casterId?: string; omen?: string; enigma?: string; unveiledSeers?: ISeer[]; timeLeftMs?: number }) => {
+        const handleRiteProgression = (data: { rite: Rites; message: string; casterId?: string; omen?: string; enigma?: string; unveiledSeers?: ISeer[]; terminus?: number }) => {
             console.log(`sketchbee-log: Entering Rite: ${data.rite} - ${data.message}`);
 
             setRite(data.rite);
+            setTerminus(data.terminus ?? null);
 
             switch (data.rite) {
                 case Rites.CONSECRATION:
+                    setCasterSignature(null);
+                    setOmen("");
+                    setEnigma("");
+                    setUnveiledSeers([]);
                     if (!data.casterId) {
                         console.error("sketchbee-error: casterId is missing in CONSECRATION rite data");
                         return;
                     }
                     setCasterSignature(data.casterId);
-                    setOmen("");
-                    setEnigma("");
-                    setUnveiledSeers([]);
                     break;
 
                 case Rites.DIVINATION:
@@ -132,24 +138,7 @@ const Sanctum: React.FC = () => {
 
     return (
         <div className="min-h-screen w-full flex flex-col px-12 py-2 bg-linear-to-br from-yellow-100 via-amber-50 to-orange-100 overflow-hidden">
-            <nav className="h-16 flex justify-between items-center">
-                <span className="flex items-center gap-2 text-yellow-700 font-semibold text-lg">
-                    <button onClick={() => navigate("/")} className="p-1 bg-white rounded-full shadow-md hover:bg-yellow-50 transition-all">
-                        <ArrowLeft className="text-yellow-600 w-5 h-5" />
-                    </button>
-                    Back
-                </span>
-                <div>
-                    {rite === Rites.CONGREGATION && <span>Phase: Congregation</span>}
-                    {rite === Rites.CONSECRATION && <span>Phase: Consecration</span>}
-                    {rite === Rites.DIVINATION && <span>Phase: Divination</span>}
-                    {rite === Rites.MANIFESTATION && <span>Phase: Manifestation</span>}
-                    {rite === Rites.REVELATION && <span>Phase: Revelation</span>}
-                    {rite === Rites.DISSOLUTION && <span>Phase: Dissolution</span>}
-                </div>
-                {enigma && <span className="text-yellow-700 font-semibold text-lg">Prophecy: {enigma}</span>}
-                <span>Omi</span>
-            </nav>
+            <SanctumNav rite={rite} secondsLeft={secondsLeft} enigma={enigma} epithet={epithet} onLeave={() => navigate("/")} />
 
             <div className="flex-1 grid gap-4 grid-cols-1 grid-rows-[auto_auto_auto_auto] sm:grid-cols-[minmax(180px,1fr)_minmax(500px,3fr)_minmax(250px,1fr)] sm:grid-rows-1 ">
                 <div className="sm:col-span-1 order-1 sm:order-0">
