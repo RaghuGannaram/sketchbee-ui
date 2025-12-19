@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
 import SanctumNav from "../components/SanctumNav";
@@ -6,6 +6,7 @@ import SeerCircle from "../components/SeerCircle";
 import Vellum from "../components/Vellum";
 import Whispers from "../components/Whispers";
 import Artifacts from "../components/Artifacts";
+import ProphecyModal from "../components/ProphecyModal";
 
 import useSocket from "../hooks/useSocket";
 import useSeer from "../hooks/useSeer";
@@ -37,6 +38,27 @@ const Sanctum: React.FC = () => {
     const secondsLeft = useRitualTimer();
 
     const { emit, subscribe } = useSocket();
+
+    const [prophecyOptions, setProphecyOptions] = useState<string[] | null>([]);
+    const hasSelectedRef = useRef(false);
+
+    const handleProphecyChosen = (selectedWord: string) => {
+        if (hasSelectedRef.current) return;
+
+        hasSelectedRef.current = true;
+        console.log("sketchbee-log: Choosing prophecy:", selectedWord);
+
+        setEnigma(selectedWord);
+        setProphecyOptions(null);
+
+        emit("ritual:prophecy", { chamberId, casterId: seerId, prophecy: selectedWord }, (response: any) => {
+            if (response.ok) {
+                console.log("sketchbee-log: prophecy confirmed");
+            } else {
+                console.error("sketchbee-error: failed to select prophecy", response.message);
+            }
+        });
+    };
 
     useEffect(() => {
         if (!epithet) {
@@ -115,18 +137,10 @@ const Sanctum: React.FC = () => {
         const handleProphecySelection = (data: { casterId: string; prophecies: string[] }) => {
             if (data.casterId !== seerId) return;
 
-            //TODO : ask user to select a prophecy
-            alert("Select a prophecy: " + data.prophecies.join(", "));
+            console.log("sketchbee-log: Received prophecies:", data.prophecies);
 
-            emit("ritual:prophecy", { chamberId: chamberId, casterId: seerId, prophecy: data.prophecies[0] }, (response: any) => {
-                if (response.ok) {
-                    console.log("sketchbee-log: prophecy selected: ", data.prophecies[0]);
-
-                    setEnigma(data.prophecies[0]);
-                } else {
-                    console.error("sketchbee-error: failed to select prophecy: ", response.message);
-                }
-            });
+            hasSelectedRef.current = false;
+            setProphecyOptions(data.prophecies);
         };
 
         const unsubscribe = subscribe("ritual:prophecies", handleProphecySelection);
@@ -157,6 +171,8 @@ const Sanctum: React.FC = () => {
             <div className="h-32">
                 <Artifacts />
             </div>
+
+            <ProphecyModal isOpen={!!prophecyOptions} prophecies={prophecyOptions || []} secondsLeft={secondsLeft} onSelect={handleProphecyChosen} />
         </div>
     );
 };
