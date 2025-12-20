@@ -1,9 +1,10 @@
 import { createStore } from "zustand";
-import { persist, devtools } from "zustand/middleware";
+import { devtools } from "zustand/middleware";
 import { Rites, ISeer } from "../types";
 
 export interface IRitualState {
     rite: Rites;
+    seers: ISeer[];
     omen: string | null;
     enigma: string | null;
     unveiledSeers: ISeer[];
@@ -13,6 +14,7 @@ export interface IRitualState {
 
 export interface IRitualActions {
     setRite: (phase: Rites) => void;
+    setSeers: (seers: ISeer[]) => void;
     setOmen: (omen: string) => void;
     setEnigma: (enigma: string) => void;
     setCasterSignature: (casterId: string | null) => void;
@@ -25,6 +27,7 @@ export interface IRitualStore extends IRitualState, IRitualActions {}
 
 const INITIAL_STATE: IRitualState = {
     rite: Rites.CONGREGATION,
+    seers: [],
     omen: "",
     enigma: "",
     unveiledSeers: [],
@@ -37,6 +40,7 @@ export const RitualStore = createStore<IRitualStore>()(
         ...INITIAL_STATE,
 
         setRite: (rite) => set({ rite }, false, "setRite"),
+        setSeers: (seers) => set({ seers }, false, "setSeers"),
         setOmen: (omen) => set({ omen }, false, "setOmen"),
         setEnigma: (enigma) => set({ enigma }, false, "setEnigma"),
         setCasterSignature: (casterSignature) => set({ casterSignature }, false, "setCaster"),

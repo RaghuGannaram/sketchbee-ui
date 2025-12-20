@@ -1,27 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Wand2, Eye, Trophy } from "lucide-react";
-import useSocket from "../hooks/useSocket";
 import useRitual from "../hooks/useRitual";
-import { ISeer } from "../types";
 
 const SeerCircle: React.FC = () => {
-    const [seers, setSeers] = useState<ISeer[]>([]);
-    const { subscribe } = useSocket();
-    
+    const seers = useRitual((state) => state.seers);
     const casterSignature = useRitual((state) => state.casterSignature);
     const unveiledSeers = useRitual((state) => state.unveiledSeers);
-
-    useEffect(() => {
-        const handleChamberUpdate = (data: { seers: ISeer[] }) => {
-            setSeers(data.seers);
-        };
-
-        const unsubscribe = subscribe("chamber:sync", handleChamberUpdate);
-
-        return () => {
-            unsubscribe();
-        };
-    }, [subscribe]);
 
     const sortedSeers = [...seers].sort((a, b) => b.essence - a.essence);
 
@@ -54,10 +38,7 @@ const SeerCircle: React.FC = () => {
                             />
 
                             {seer.seerId === casterSignature && (
-                                <div
-                                    className="absolute -top-1 -right-1 bg-yellow-500 text-white rounded-full p-0.5 shadow-sm"
-                                    title="Currently Inscribing"
-                                >
+                                <div className="absolute -top-1 -right-1 bg-yellow-500 text-white rounded-full p-0.5 shadow-sm" title="Currently Inscribing">
                                     <Wand2 className="w-3 h-3" />
                                 </div>
                             )}
@@ -75,19 +56,13 @@ const SeerCircle: React.FC = () => {
 
                             <div className="flex justify-between items-center mt-0.5">
                                 <span className="text-xs text-gray-500 font-mono">{seer.essence} Essence</span>
-                                {seer.currentEssence > 0 && (
-                                    <span className="text-xs text-green-600 font-bold animate-pulse">
-                                        +{seer.currentEssence}
-                                    </span>
-                                )}
+                                {seer.currentEssence > 0 && <span className="text-xs text-green-600 font-bold animate-pulse">+{seer.currentEssence}</span>}
                             </div>
                         </div>
                     </li>
                 ))}
 
-                {seers.length === 0 && (
-                    <div className="text-center p-4 text-gray-400 text-sm italic">The chamber is empty...</div>
-                )}
+                {seers.length === 0 && <div className="text-center p-4 text-gray-400 text-sm italic">The chamber is empty...</div>}
             </ul>
         </div>
     );

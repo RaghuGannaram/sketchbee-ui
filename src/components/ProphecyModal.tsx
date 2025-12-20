@@ -9,7 +9,6 @@ interface IProphecyModalProps {
 }
 
 const ProphecyModal: React.FC<IProphecyModalProps> = ({ isOpen, prophecies, secondsLeft, onSelect }) => {
-    secondsLeft = 11;
     const isPortalFading = 5 < secondsLeft && secondsLeft <= 10;
     const isPortalClosing = secondsLeft <= 5;
 
@@ -25,6 +24,8 @@ const ProphecyModal: React.FC<IProphecyModalProps> = ({ isOpen, prophecies, seco
     useEffect(() => {
         if (isOpen && secondsLeft <= 3 && !selectedProphecy) {
             const randomIndex = Math.floor(Math.random() * prophecies.length);
+
+            console.log("sketchbee-log: Auto selecting prophecy:", prophecies[randomIndex]);
             handleSelection(prophecies[randomIndex]);
         }
 

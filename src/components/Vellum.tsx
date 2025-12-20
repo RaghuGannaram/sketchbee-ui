@@ -22,6 +22,7 @@ const Vellum: React.FC = () => {
     const snapshots = useStylus((state) => state.snapshots);
     const pointer = useStylus((state) => state.pointer);
     const anchor = useStylus((state) => state.anchor);
+    const banish = useStylus((state) => state.banish);
 
     const chamberId = useSeer((state) => state.chamberId);
     const seerId = useSeer((state) => state.seerId);
@@ -164,40 +165,47 @@ const Vellum: React.FC = () => {
         };
     }, [chamberId, seerId]);
 
-    const performStroke = useCallback(
-        (
-            start: { x: number; y: number },
-            end: { x: number; y: number },
-            tip: "etch" | "rub",
-            gauge: number,
-            pigment: string
-        ) => {
+    useEffect(() => {
+        if (rite === Rites.CONSECRATION) {
+            console.log("sketchbee-log: Consecration detected, purging Vellum...");
+
             const canvas = canvasRef.current;
             if (!canvas) return;
 
             const ctx = canvas.getContext("2d");
             if (!ctx) return;
 
-            ctx.lineCap = "round";
-            ctx.lineJoin = "round";
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            banish();
+            bufferRef.current = [];
+        }
+    }, [rite, anchor]);
 
-            if (tip === "rub") {
-                ctx.globalCompositeOperation = "destination-out";
-                ctx.lineWidth = 50;
-                ctx.strokeStyle = "rgba(0,0,0,1)";
-            } else {
-                ctx.globalCompositeOperation = "source-over";
-                ctx.lineWidth = gauge;
-                ctx.strokeStyle = pigment;
-            }
+    const performStroke = useCallback((start: { x: number; y: number }, end: { x: number; y: number }, tip: "etch" | "rub", gauge: number, pigment: string) => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
 
-            ctx.beginPath();
-            ctx.moveTo(start.x, start.y);
-            ctx.lineTo(end.x, end.y);
-            ctx.stroke();
-        },
-        []
-    );
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+
+        if (tip === "rub") {
+            ctx.globalCompositeOperation = "destination-out";
+            ctx.lineWidth = 50;
+            ctx.strokeStyle = "rgba(0,0,0,1)";
+        } else {
+            ctx.globalCompositeOperation = "source-over";
+            ctx.lineWidth = gauge;
+            ctx.strokeStyle = pigment;
+        }
+
+        ctx.beginPath();
+        ctx.moveTo(start.x, start.y);
+        ctx.lineTo(end.x, end.y);
+        ctx.stroke();
+    }, []);
 
     const engageStylus = (event: React.MouseEvent) => {
         if (!canvasRef.current) return;
@@ -235,13 +243,7 @@ const Vellum: React.FC = () => {
     };
 
     return (
-        <div
-            className={`relative w-full h-full ${
-                casterSignature === seerId && rite === Rites.MANIFESTATION
-                    ? "cursor-crosshair"
-                    : "pointer-events-none cursor-default"
-            }`}
-        >
+        <div className={`relative w-full h-full ${casterSignature === seerId && rite === Rites.MANIFESTATION ? "cursor-crosshair" : "pointer-events-none cursor-default"}`}>
             <canvas
                 ref={canvasRef}
                 onMouseDown={engageStylus}

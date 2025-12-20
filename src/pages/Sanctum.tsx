@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 import SanctumNav from "../components/SanctumNav";
@@ -26,8 +26,10 @@ const Sanctum: React.FC = () => {
     const sever = useSeer((state) => state.sever);
 
     const rite = useRitual((state) => state.rite);
+    const omen = useRitual((state) => state.omen);
     const enigma = useRitual((state) => state.enigma);
     const setRite = useRitual((state) => state.setRite);
+    const setSeers = useRitual((state) => state.setSeers);
     const setEnigma = useRitual((state) => state.setEnigma);
     const setOmen = useRitual((state) => state.setOmen);
     const setCasterSignature = useRitual((state) => state.setCasterSignature);
@@ -39,13 +41,22 @@ const Sanctum: React.FC = () => {
 
     const { emit, subscribe } = useSocket();
 
+    const [isListenersReady, setIsListenersReady] = useState(false);
     const [prophecyOptions, setProphecyOptions] = useState<string[] | null>([]);
-    const hasSelectedRef = useRef(false);
 
-    const handleProphecyChosen = (selectedWord: string) => {
-        if (hasSelectedRef.current) return;
+    const handleChamberLeave = () => {
+        emit("chamber:leave", { chamberId, seerId }, (response: any) => {
+            if (response.ok) {
+                console.log("sketchbee-log: left chamber successfully");
+            } else {
+                console.error("sketchbee-error: failed to leave chamber", response.message);
+            }
+        });
+        sever();
+        navigate("/");
+    };
 
-        hasSelectedRef.current = true;
+    const handleProphecySelection = (selectedWord: string) => {
         console.log("sketchbee-log: Choosing prophecy:", selectedWord);
 
         setEnigma(selectedWord);
@@ -53,20 +64,98 @@ const Sanctum: React.FC = () => {
 
         emit("ritual:prophecy", { chamberId, casterId: seerId, prophecy: selectedWord }, (response: any) => {
             if (response.ok) {
-                console.log("sketchbee-log: prophecy confirmed");
+                console.log("sketchbee-log: prophecy selection confirmed");
             } else {
                 console.error("sketchbee-error: failed to select prophecy", response.message);
             }
         });
     };
 
+    const onChamberSync = (data: { seers: ISeer[] }) => {
+        console.log("sketchbee-log: chamber sync received: ", data.seers);
+
+        setSeers(data.seers);
+    };
+
+    const onProphecyProvision = (data: { casterId: string; prophecies: string[] }) => {
+        if (data.casterId !== seerId) {
+            console.warn("sketchbee-warn: received prophecy options for different seer:", data.casterId);
+            return;
+        }
+
+        console.log("sketchbee-log: Received prophecies:", data.prophecies);
+        setProphecyOptions(data.prophecies);
+    };
+
+    const onRiteProgression = (data: { rite: Rites; message: string; casterId?: string; omen?: string; enigma?: string; unveiledSeers?: ISeer[]; terminus?: number }) => {
+        console.log(`sketchbee-log: Entering Rite: ${data.rite} - ${data.message}`);
+
+        setRite(data.rite);
+        setTerminus(data.terminus ?? null);
+
+        switch (data.rite) {
+            case Rites.CONSECRATION:
+                setCasterSignature(null);
+                setOmen("");
+                setEnigma("");
+                setUnveiledSeers([]);
+                if (!data.casterId) {
+                    console.error("sketchbee-error: casterId is missing in CONSECRATION rite data");
+                    return;
+                }
+                setCasterSignature(data.casterId);
+                break;
+
+            case Rites.DIVINATION:
+                break;
+
+            case Rites.MANIFESTATION:
+                if (!data.omen) {
+                    console.error("sketchbee-error: omen is missing in MANIFESTATION rite data");
+                    return;
+                }
+                setOmen(data.omen);
+                break;
+
+            case Rites.REVELATION:
+                if (!data.enigma) {
+                    console.error("sketchbee-error: enigma is missing in REVELATION rite data");
+                    return;
+                }
+                if (!data.unveiledSeers) {
+                    console.error("sketchbee-error: seers are missing in REVELATION rite data");
+                    return;
+                }
+                setEnigma(data.enigma);
+                setUnveiledSeers(data.unveiledSeers);
+                break;
+
+            case Rites.DISSOLUTION:
+                resetRitual();
+                break;
+        }
+    };
+
+    useEffect(() => {
+        console.log("sketchbee-log: Initializing listeners...");
+
+        const subscriptions = [subscribe("chamber:sync", onChamberSync), subscribe("ritual:prophecies", onProphecyProvision), subscribe("ritual:rite", onRiteProgression)];
+
+        setIsListenersReady(true);
+
+        return () => {
+            subscriptions.forEach((unsubscribe) => unsubscribe());
+            setIsListenersReady(false);
+        };
+    }, [subscribe, seerId, chamberId]);
+
     useEffect(() => {
         if (!epithet) {
             navigate("/");
         }
-    }, [epithet]);
 
-    useEffect(() => {
+        if (!isListenersReady) return;
+
         emit("chamber:join", { epithet, guise, seerId, chamberId }, (response: { ok: boolean; message: string; seer: ISeer | null }) => {
             if (!response.ok) {
                 console.error("sketchbee-error: failed to join chamber: ", response.message);
@@ -78,81 +167,11 @@ const Sanctum: React.FC = () => {
 
             tether(response);
         });
-    }, []);
-
-    useEffect(() => {
-        const handleRiteProgression = (data: { rite: Rites; message: string; casterId?: string; omen?: string; enigma?: string; unveiledSeers?: ISeer[]; terminus?: number }) => {
-            console.log(`sketchbee-log: Entering Rite: ${data.rite} - ${data.message}`);
-
-            setRite(data.rite);
-            setTerminus(data.terminus ?? null);
-
-            switch (data.rite) {
-                case Rites.CONSECRATION:
-                    setCasterSignature(null);
-                    setOmen("");
-                    setEnigma("");
-                    setUnveiledSeers([]);
-                    if (!data.casterId) {
-                        console.error("sketchbee-error: casterId is missing in CONSECRATION rite data");
-                        return;
-                    }
-                    setCasterSignature(data.casterId);
-                    break;
-
-                case Rites.DIVINATION:
-                    break;
-
-                case Rites.MANIFESTATION:
-                    if (data.omen) setOmen(data.omen);
-                    break;
-
-                case Rites.REVELATION:
-                    if (!data.enigma) {
-                        console.error("sketchbee-error: enigma is missing in REVELATION rite data");
-                        return;
-                    }
-                    if (!data.unveiledSeers) {
-                        console.error("sketchbee-error: seers are missing in REVELATION rite data");
-                        return;
-                    }
-                    setEnigma(data.enigma);
-                    setUnveiledSeers(data.unveiledSeers);
-                    break;
-
-                case Rites.DISSOLUTION:
-                    resetRitual();
-                    break;
-            }
-        };
-
-        const unsubscribe = subscribe("ritual:rite", handleRiteProgression);
-
-        return () => {
-            unsubscribe();
-        };
-    }, [subscribe, setRite, setCasterSignature, setEnigma, setOmen]);
-
-    useEffect(() => {
-        const handleProphecySelection = (data: { casterId: string; prophecies: string[] }) => {
-            if (data.casterId !== seerId) return;
-
-            console.log("sketchbee-log: Received prophecies:", data.prophecies);
-
-            hasSelectedRef.current = false;
-            setProphecyOptions(data.prophecies);
-        };
-
-        const unsubscribe = subscribe("ritual:prophecies", handleProphecySelection);
-
-        return () => {
-            unsubscribe();
-        };
-    }, [chamberId, seerId, subscribe]);
+    }, [subscribe, emit, isListenersReady]);
 
     return (
         <div className="min-h-screen w-full flex flex-col px-12 py-2 bg-linear-to-br from-yellow-100 via-amber-50 to-orange-100 overflow-hidden">
-            <SanctumNav rite={rite} secondsLeft={secondsLeft} enigma={enigma} epithet={epithet} onLeave={() => navigate("/")} />
+            <SanctumNav rite={rite} secondsLeft={secondsLeft} omen={omen} enigma={enigma} epithet={epithet} onLeave={handleChamberLeave} />
 
             <div className="flex-1 grid gap-4 grid-cols-1 grid-rows-[auto_auto_auto_auto] sm:grid-cols-[minmax(180px,1fr)_minmax(500px,3fr)_minmax(250px,1fr)] sm:grid-rows-1 ">
                 <div className="sm:col-span-1 order-1 sm:order-0">
@@ -172,7 +191,7 @@ const Sanctum: React.FC = () => {
                 <Artifacts />
             </div>
 
-            <ProphecyModal isOpen={!!prophecyOptions} prophecies={prophecyOptions || []} secondsLeft={secondsLeft} onSelect={handleProphecyChosen} />
+            <ProphecyModal isOpen={!!prophecyOptions} prophecies={prophecyOptions || []} secondsLeft={secondsLeft} onSelect={handleProphecySelection} />
         </div>
     );
 };
