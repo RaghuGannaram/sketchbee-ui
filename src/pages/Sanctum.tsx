@@ -147,14 +147,18 @@ const Sanctum: React.FC = () => {
             subscriptions.forEach((unsubscribe) => unsubscribe());
             setIsListenersReady(false);
         };
-    }, [subscribe, seerId, chamberId]);
+    }, [subscribe, chamberId, seerId]);
 
     useEffect(() => {
         if (!epithet) {
+            console.error("sketchbee-error: epithet is missing, redirecting to home");
             navigate("/");
         }
 
-        if (!isListenersReady) return;
+        if (!isListenersReady) {
+            console.log("sketchbee-log: Listeners not ready, skipping chamber join");
+            return;
+        }
 
         emit("chamber:join", { epithet, guise, seerId, chamberId }, (response: { ok: boolean; message: string; seer: ISeer | null }) => {
             if (!response.ok) {
@@ -167,31 +171,42 @@ const Sanctum: React.FC = () => {
 
             tether(response);
         });
+
+        return () => {
+            emit("chamber:leave", { chamberId, seerId }, (response: any) => {
+                if (response.ok) {
+                    console.log("sketchbee-log: left chamber successfully");
+                } else {
+                    console.error("sketchbee-error: failed to leave chamber", response.message);
+                }
+            });
+            sever();
+        };
     }, [subscribe, emit, isListenersReady]);
 
     return (
-        <div className="min-h-screen w-full flex flex-col px-12 py-2 bg-linear-to-br from-yellow-100 via-amber-50 to-orange-100 overflow-hidden">
+        <div className="min-h-screen w-full flex flex-col justify-between px-8 py-4 gap-5 bg-linear-to-br from-slate-50 via-indigo-50/30 to-slate-100 overflow-hidden font-serif scroll-smooth scrollbar-hide">
             <SanctumNav rite={rite} secondsLeft={secondsLeft} omen={omen} enigma={enigma} epithet={epithet} onLeave={handleChamberLeave} />
 
-            <div className="flex-1 grid gap-4 grid-cols-1 grid-rows-[auto_auto_auto_auto] sm:grid-cols-[minmax(180px,1fr)_minmax(500px,3fr)_minmax(250px,1fr)] sm:grid-rows-1 ">
-                <div className="sm:col-span-1 order-1 sm:order-0">
+            <div className="flex-1 grid grid-cols-1 sm:grid-cols-[350px_1fr_350px] gap-6">
+                <div className="order-2 sm:order-1 h-full min-h-[400px]">
                     <SeerCircle />
                 </div>
 
-                <div className="sm:col-span-1 order-2 sm:order-0 rounded-xl shadow-lg border border-yellow-200 ">
+                <div className="order-1 sm:order-2 h-full flex flex-col bg-white/40 backdrop-blur-md rounded-[2.5rem] border border-indigo-100 shadow-xl shadow-indigo-500/5 overflow-hidden">
                     <Vellum />
                 </div>
 
-                <div className="sm:col-span-1 order-3 sm:order-0">
+                <div className="order-3 sm:order-3 h-full min-h-[400px]">
                     <Whispers />
                 </div>
             </div>
 
-            <div className="h-32">
-                <Artifacts />
-            </div>
+            <Artifacts />
 
-            <ProphecyModal isOpen={!!prophecyOptions} prophecies={prophecyOptions || []} secondsLeft={secondsLeft} onSelect={handleProphecySelection} />
+            {rite === Rites.DIVINATION && prophecyOptions && prophecyOptions.length > 0 && (
+                <ProphecyModal isOpen={!!prophecyOptions} prophecies={prophecyOptions} secondsLeft={secondsLeft} onSelect={handleProphecySelection} />
+            )}
         </div>
     );
 };

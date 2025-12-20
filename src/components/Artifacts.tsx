@@ -1,5 +1,5 @@
 import React from "react";
-import { Eraser, Brush, Palette, Undo2, Redo2, Trash2, Eye } from "lucide-react";
+import { Eraser, Brush, Undo2, Redo2, Trash2, Eye, Zap } from "lucide-react";
 import useStylus from "../hooks/useStylus";
 import useSeer from "../hooks/useSeer";
 import useSocket from "../hooks/useSocket";
@@ -47,97 +47,69 @@ const Artifacts: React.FC = () => {
         emit("rune:void", { chamberId, casterId: seerId });
     };
 
-    if (casterSignature !== seerId || rite !== Rites.MANIFESTATION) {
-        return (
-            <div className="w-full flex items-center justify-between p-3 mt-10 bg-white/60 backdrop-blur-sm rounded-xl border border-yellow-200 shadow-sm">
-                <div className="flex items-center gap-3 text-yellow-900/60">
-                    <Eye className="w-5 h-5" />
-                    <span className="font-serif font-medium tracking-wide">Witnessing the Ritual...</span>
-                </div>
-                <div className="px-3 py-1 bg-yellow-100/50 rounded text-xs font-mono text-yellow-800 border border-yellow-200">
-                    Wait for your turn
-                </div>
-            </div>
-        );
-    }
+    // if (casterSignature !== seerId || rite !== Rites.MANIFESTATION) {
+    //     return (
+    //         <div className="w-full flex items-center justify-center p-4 mt-4">
+    //             <div className="flex items-center gap-3 px-6 py-2 bg-white/40 backdrop-blur-md rounded-full border border-indigo-100/50 shadow-sm">
+    //                 <Eye className="w-4 h-4 text-indigo-400 animate-pulse" />
+    //                 <span className="text-[11px] font-mono font-bold text-indigo-900/40 uppercase tracking-[0.3em]">Observing Astral Flow</span>
+    //             </div>
+    //         </div>
+    //     );
+    // }
 
     return (
-        <div className="w-full h-full flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div className="flex items-center gap-4">
+        <div className="flex justify-between items-center gap-6 px-6 py-3 bg-slate-200 rounded-xl">
+            <div className="flex items-center gap-1">
                 <button
-                    title="Etch (Brush)"
                     onClick={() => switchTip("etch")}
-                    className={`flex items-center gap-1 px-3 py-2 rounded-md border transition-all ${
-                        tip === "etch"
-                            ? "bg-yellow-400 border-yellow-500 text-white"
-                            : "bg-white border-gray-300 hover:bg-yellow-50"
-                    }`}
+                    className={`p-2.5 rounded-lg transition-all ${tip === "etch" ? "bg-indigo-500 text-slate-100" : "text-slate-700 hover:text-indigo-600 hover:bg-slate-300"}`}
+                    title="Draw"
                 >
-                    <Brush className="w-5 h-5" /> Brush
-                </button>
-
-                <button
-                    title="Rub (Eraser)"
-                    onClick={() => switchTip("rub")}
-                    className={`flex items-center gap-1 px-3 py-2 rounded-md border transition-all ${
-                        tip === "rub"
-                            ? "bg-yellow-400 border-yellow-500 text-white"
-                            : "bg-white border-gray-300 hover:bg-yellow-50"
-                    }`}
-                >
-                    <Eraser className="w-5 h-5" /> Eraser
-                </button>
-            </div>
-
-            <div className="flex items-center gap-8">
-                <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
                     <Brush className="w-5 h-5" />
-                    <input
-                        type="range"
-                        min="1"
-                        max="20"
-                        value={gauge}
-                        onChange={(e) => adjustGauge(Number(e.target.value))}
-                        className="w-48 accent-yellow-500"
-                    />
-                    <span className="text-gray-600 w-6">{gauge}px</span>
-                </div>
-
-                <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                    <Palette className="w-5 h-5 text-yellow-600" />
-                    <input
-                        type="color"
-                        value={pigment}
-                        onChange={(e) => mixPigment(e.target.value)}
-                        className="w-8 h-8 cursor-pointer"
-                    />
-                </div>
+                </button>
+                <button
+                    onClick={() => switchTip("rub")}
+                    className={`p-2.5 rounded-lg transition-all ${tip === "rub" ? "bg-indigo-500 text-slate-100" : "text-slate-700 hover:text-indigo-600 hover:bg-slate-300"}`}
+                    title="Erase"
+                >
+                    <Eraser className="w-5 h-5" />
+                </button>
             </div>
 
-            <div className="flex items-center gap-3">
-                <button
-                    onClick={() => undoHandler()}
-                    className="p-2 rounded-md bg-white hover:bg-yellow-50 border border-gray-300 transition-all"
-                    title="Revoke (Undo)"
-                >
-                    <Undo2 className="w-5 h-5 text-gray-700" />
-                </button>
+            <div className="flex items-center gap-4 flex-1 max-w-xs">
+                <Zap className="w-3.5 h-3.5 text-indigo-500" />
+                <input
+                    type="range"
+                    min="1"
+                    max="20"
+                    value={gauge}
+                    onChange={(e) => adjustGauge(Number(e.target.value))}
+                    className="flex-1 h-1 bg-indigo-400 rounded-full appearance-none cursor-pointer accent-indigo-600"
+                />
+                <span className="text-[12px] font-mono font-black text-indigo-500 w-8">{gauge}px</span>
+            </div>
 
-                <button
-                    onClick={() => redoHandler()}
-                    className="p-2 rounded-md bg-white hover:bg-yellow-50 border border-gray-300 transition-all"
-                    title="Invoke (Redo)"
-                >
-                    <Redo2 className="w-5 h-5 text-gray-700" />
-                </button>
+            <div className="flex items-center gap-4">
+                <div className="relative flex items-center gap-2 group cursor-pointer">
+                    <div className="w-7 h-7 rounded-full border-2 border-white shadow-sm ring-1 ring-indigo-100 overflow-hidden" style={{ backgroundColor: pigment }}>
+                        <input type="color" value={pigment} onChange={(e) => mixPigment(e.target.value)} className="absolute inset-0 opacity-0 cursor-pointer scale-150" />
+                    </div>
+                </div>
 
-                <button
-                    onClick={() => clearHandler()}
-                    className="p-2 rounded-md bg-white hover:bg-red-50 border border-gray-300 transition-all"
-                    title="Banish (Clear)"
-                >
-                    <Trash2 className="w-5 h-5 text-red-600" />
-                </button>
+                <div className="h-6 w-px bg-slate-400 mx-1" />
+
+                <div className="flex items-center gap-0.5">
+                    <button onClick={() => undoHandler()} className="p-2 text-slate-400 hover:text-indigo-500 transition-colors">
+                        <Undo2 className="w-5 h-5" />
+                    </button>
+                    <button onClick={() => redoHandler()} className="p-2 text-slate-400 hover:text-indigo-500 transition-colors">
+                        <Redo2 className="w-5 h-5" />
+                    </button>
+                    <button onClick={() => clearHandler()} className="p-2 text-slate-400 hover:text-rose-500 transition-colors ml-2">
+                        <Trash2 className="w-5 h-5" />
+                    </button>
+                </div>
             </div>
         </div>
     );

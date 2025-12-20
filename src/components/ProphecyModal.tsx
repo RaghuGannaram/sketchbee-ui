@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Clock, AlertTriangle, Zap, CheckCircle2 } from "lucide-react";
+import { Clock, AlertTriangle, Zap } from "lucide-react";
 
 interface IProphecyModalProps {
     isOpen: boolean;
@@ -66,10 +66,10 @@ const ProphecyModal: React.FC<IProphecyModalProps> = ({ isOpen, prophecies, seco
 
                     <div className="space-y-2 text-center">
                         <h2
-                            className={`text-2xl md:text-3xl font-serif tracking-tight italic transition-colors duration-500 
-                            ${isPortalClosing ? "text-red-800" : "text-stone-900"}`}
+                            className={`font-mono text-2xl md:text-3xl uppercase tracking-widest transition-colors duration-500 
+                            ${isPortalClosing ? "text-red-800" : "text-slate-900"}`}
                         >
-                            {selectedProphecy ? "Prophecy Selected" : isPortalClosing ? "The portal is closing..." : "Choose a prophecy, Caster"}
+                            {selectedProphecy ? "Word Selected" : isPortalClosing ? "The portal is closing..." : "Select a word..."}
                         </h2>
                         {isPortalClosing && !selectedProphecy && <p className="text-sm font-mono text-red-700 animate-bounce">Auto selecting...</p>}
                     </div>
@@ -77,9 +77,6 @@ const ProphecyModal: React.FC<IProphecyModalProps> = ({ isOpen, prophecies, seco
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-5 w-full">
                     {prophecies.map((word, index) => {
-                        const isSelected = selectedProphecy === word;
-                        const isDimmed = selectedProphecy !== null && !isSelected;
-
                         return (
                             <button
                                 key={index}
@@ -87,53 +84,27 @@ const ProphecyModal: React.FC<IProphecyModalProps> = ({ isOpen, prophecies, seco
                                 disabled={selectedProphecy !== null}
                                 className={`group relative flex flex-col items-center justify-center py-12 px-6
                                     rounded-xl transition-all duration-500 transform
-                                    ${
-                                        isSelected
-                                            ? "bg-amber-50 border-amber-500 shadow-[0_0_30px_rgba(245,158,11,0.3)] scale-105 z-20"
-                                            : "bg-white/60 border-stone-200/60 hover:bg-white hover:border-stone-900 hover:-translate-y-1"
-                                    }
-                                    ${isDimmed ? "opacity-40 grayscale-[0.5] scale-95" : "opacity-100"}
+                                    bg-slate-200/50 border-slate-200/60 hover:bg-slate-50 hover:border-slate-900 hover:-translate-y-1
                                     ${isPortalClosing && !selectedProphecy ? "animate-pulse border-red-200" : "border"}
                                 `}
                             >
-                                <span
-                                    className={`absolute top-4 left-4 text-[9px] font-mono transition-colors
-                                    ${isSelected ? "text-amber-600" : "text-stone-400 group-hover:text-stone-900"}`}
-                                >
-                                    0{index + 1}
-                                </span>
+                                <span className={"absolute top-4 left-4 font-mono text-[9px] text-slate-400 transition-colors group-hover:text-slate-900"}>0{index + 1}</span>
 
-                                <span
-                                    className={`text-xl font-serif tracking-tight transition-all duration-500
-                                    ${isSelected ? "text-amber-900 scale-110 font-bold" : "text-stone-800 group-hover:text-black"}`}
-                                >
-                                    {word}
-                                </span>
+                                <span className={"font-mono text-xl text-slate-700 uppercase tracking-widest group-hover:text-slate-900 transition-colors"}>{word}</span>
 
-                                {isSelected && (
-                                    <div className="absolute top-4 right-4 text-amber-600 animate-in zoom-in duration-300">
-                                        <CheckCircle2 className="w-4 h-4" />
-                                    </div>
-                                )}
-
-                                <div
-                                    className={`absolute bottom-6 transition-all duration-300 
-                                    ${isSelected ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0"}`}
-                                >
-                                    <span className={`text-[8px] uppercase tracking-[0.2em] font-bold ${isSelected ? "text-amber-700" : "text-stone-500"}`}>
-                                        {isSelected ? "Manifested" : "Lock Prophecy"}
-                                    </span>
+                                <div className={"absolute bottom-6 transition-all duration-300 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0"}>
+                                    <span className={"font-mono font-bold text-[8px] uppercase tracking-[0.2em] text-slate-400 transition-colors"}>Lock this word</span>
                                 </div>
                             </button>
                         );
                     })}
                 </div>
 
-                {/* Footer status */}
                 <div className="flex flex-col items-center gap-3 opacity-40">
-                    <div className={`h-px transition-all duration-1000 ${isPortalClosing ? "w-48 bg-red-600" : "w-12 bg-stone-900"}`} />
-                    <span className="text-[9px] uppercase tracking-[0.5em] font-medium text-stone-900">
-                        {selectedProphecy ? "Prophecy Selected" : `Portal Status: ${isPortalClosing ? "Critical" : isPortalFading ? "Fading" : "Optimal"}`}
+                    <div className={`h-px transition-all duration-1000 ${isPortalClosing ? "w-48 bg-red-600" : "w-12 bg-slate-900"}`} />
+
+                    <span className="font-mono font-medium text-[9px] uppercase tracking-[0.5em] text-slate-900">
+                        {selectedProphecy ? "Word selected" : `Portal Status: ${isPortalClosing ? "Critical" : isPortalFading ? "Fading" : "Optimal"}`}
                     </span>
                 </div>
             </div>

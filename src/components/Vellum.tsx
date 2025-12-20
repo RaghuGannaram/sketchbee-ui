@@ -250,7 +250,7 @@ const Vellum: React.FC = () => {
                 onMouseMove={wieldStylus}
                 onMouseUp={disengageStylus}
                 onMouseLeave={disengageStylus}
-                className="w-full h-full bg-white border border-yellow-300 rounded-lg shadow-md cursor-pointer touch-none"
+                className="w-full h-full bg-white cursor-pointer touch-none"
                 style={{ cursor: cursorStyle }}
             />
         </div>

@@ -30,7 +30,7 @@ export const stylusStore = createStore<IStylusStore>()(
         persist(
             (set, get) => ({
                 gauge: 5,
-                pigment: "#82c65d",
+                pigment: "#5d60c6",
                 tip: "etch",
                 snapshots: [],
                 pointer: -1,

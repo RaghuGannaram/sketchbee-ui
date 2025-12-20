@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Send, MessageSquare, Scroll } from "lucide-react";
+import { Send, MessageSquare, Scroll, Sparkles, ShieldAlert, Zap, Target } from "lucide-react";
 import useSeer from "../hooks/useSeer";
 import useSocket from "../hooks/useSocket";
 
 interface IWhisper {
     epithet: string;
     script: string;
-    isSystem: boolean;
     timestamp: number;
+    isSystem?: boolean;
+    isUnveiled?: boolean;
 }
 
 const Whispers: React.FC = () => {
@@ -20,13 +21,37 @@ const Whispers: React.FC = () => {
     const [whispers, setWhispers] = useState<IWhisper[]>([]);
     const endOfScrollRef = useRef<HTMLDivElement>(null);
 
-    // const formatTime = (ts: number) => {
-    //     return new Date(ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-    // };
+    useEffect(() => {
+        const handleSystemMessage = (data: { text: string }) => {
+            setWhispers((prev) => [
+                ...prev,
+                {
+                    epithet: "system",
+                    script: data.text,
+                    timestamp: Date.now(),
+                    isSystem: true,
+                },
+            ]);
+        };
+
+        const unsubscribe = subscribe("sys:message", handleSystemMessage);
+
+        return () => {
+            unsubscribe();
+        };
+    }, [subscribe]);
 
     useEffect(() => {
         const handleNewWhisper = (data: IWhisper) => {
-            setWhispers((prev) => [...prev, data]);
+            setWhispers((prev) => [
+                ...prev,
+                {
+                    epithet: data.epithet,
+                    script: data.script,
+                    timestamp: data.timestamp,
+                    isSystem: false,
+                },
+            ]);
         };
 
         const unsubscribe = subscribe("rune:script", handleNewWhisper);
@@ -38,9 +63,17 @@ const Whispers: React.FC = () => {
 
     useEffect(() => {
         const unsubscribe = subscribe("rune:unveiled", (data) => {
-            setWhispers((prev) => [...prev, data]);
+            setWhispers((prev) => [
+                ...prev,
+                {
+                    epithet: data.epithet,
+                    script: data.script,
+                    timestamp: data.timestamp,
+                    isSystem: false,
+                    isUnveiled: true,
+                },
+            ]);
         });
-
         return () => {
             unsubscribe();
         };
@@ -52,72 +85,56 @@ const Whispers: React.FC = () => {
 
     const castWhisper = () => {
         if (!draft.trim()) return;
-
-        const payload = {
-            chamberId,
-            seerId,
-            epithet,
-            script: draft,
-        };
+        const payload = { chamberId, seerId, epithet, script: draft };
 
         emit("rune:script", payload);
 
         setDraft("");
     };
 
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === "Enter") {
-            castWhisper();
-        }
-    };
-
     return (
-        <div className=" w-full h-full flex flex-col bg-white/60 backdrop-blur-sm rounded-xl border border-yellow-200 shadow-sm overflow-hidden">
-            <div className="flex items-center gap-2 p-4 bg-yellow-100/50 border-b border-yellow-200">
-                <MessageSquare className="w-5 h-5 text-yellow-700" />
-                <h2 className="font-serif font-bold text-yellow-900 tracking-wide">Whispers</h2>
+        <div className="w-full h-full flex flex-col bg-slate-100 backdrop-blur-2xl border border-indigo-100 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.05)] overflow-hidden">
+            <div className="px-6 py-5 bg-slate-500/10 flex items-center gap-4">
+                <MessageSquare className="w-4 h-4 text-indigo-400 stroke-[2.5px]" />
+                <h2 className="font-mono font-bold text-slate-700 tracking-[0.2em] uppercase text-xs">Live Chat</h2>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                {whispers.length === 0 && (
-                    <div className="text-center text-gray-400 italic text-sm mt-10">
-                        <Scroll className="w-8 h-8 mx-auto mb-2 opacity-30" />
-                        The void is silent...
-                    </div>
-                )}
-
+            <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6 scroll-smooth scrollbar-hide">
                 {whispers.map((whisper, index) => {
                     const isMe = whisper.epithet === epithet;
 
+                    if (whisper.isUnveiled) {
+                        return (
+                            <div key={index} className="relative group py-4 animate-in fade-in zoom-in duration-700">
+                                <div className="relative flex flex-col items-center">
+                                    <div className="flex items-center gap-3 mb-3">
+                                        <Target className="w-4 h-4 text-indigo-500" />
+                                        <span className="font-mono text-[10px] font-black text-indigo-500 tracking-widest uppercase">{whisper.epithet} got it...!!!</span>
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    }
+
                     if (whisper.isSystem) {
                         return (
-                            <div key={index} className="flex justify-center w-full my-3">
-                                <span className="bg-slate-200 text-slate-600 border border-slate-300 px-4 py-2 rounded-full text-xs font-medium tracking-wide shadow-sm text-center">
-                                    {whisper.script}
-                                </span>
+                            <div key={index} className="flex justify-center items-center gap-2 py-2">
+                                <div className="h-px flex-1 bg-slate-200" />
+                                <div className="flex items-center gap-2 px-3 py-1 bg-slate-200/50 rounded-full border border-slate-200">
+                                    <ShieldAlert className="w-3.5 h-3.5 text-slate-500 stroke-2 " />
+                                    <span className="font-mono text-[10px] text-slate-700 font-bold tracking-widest uppercase">{whisper.script}</span>
+                                </div>
+                                <div className="h-px flex-1 bg-slate-200" />
                             </div>
                         );
                     }
 
                     return (
                         <div key={index} className={`flex flex-col ${isMe ? "items-end" : "items-start"}`}>
-                            {!isMe && <span className="text-[10px] text-gray-500 mb-1 ml-1 uppercase tracking-wider font-semibold">{whisper.epithet}</span>}
+                            {!isMe && <span className="text-[8px] font-mono font-bold text-slate-700 tracking-widest uppercase ml-1">{whisper.epithet}</span>}
 
-                            <div
-                                className={`
-                                max-w-[85%] px-3 py-0.5 rounded-lg text-sm shadow-sm flex flex-col items-end gap-1
-                                ${isMe ? "bg-yellow-500 text-white rounded-tr-none" : "bg-white border border-yellow-100 text-gray-800 rounded-tl-none"}
-                            `}
-                            >
-                                <span className="text-left w-full">{whisper.script}</span>
-
-                                {/* <span
-                                    className={`text-[10px] leading-none ${
-                                        isMe ? "text-yellow-100/80" : "text-gray-400"
-                                    }`}
-                                >
-                                    {formatTime(whisper.timestamp)}
-                                </span> */}
+                            <div className={`px-4 py-2 rounded-xl ${isMe ? "bg-slate-900 text-slate-200 rounded-tr-none " : "bg-slate-200 text-slate-700 rounded-tl-none"}`}>
+                                <p className="text-[13px] font-serif leading-snug tracking-wide italic">{whisper.script}</p>
                             </div>
                         </div>
                     );
@@ -125,24 +142,22 @@ const Whispers: React.FC = () => {
                 <div ref={endOfScrollRef} />
             </div>
 
-            <div className="p-3 bg-white/80 border-t border-yellow-200">
-                <div className="flex w-full gap-2 items-center">
-                    <input
-                        type="text"
-                        value={draft}
-                        onChange={(e) => setDraft(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                        placeholder="Chant your guess..."
-                        className="flex-1 min-w-0 bg-yellow-50/50 border border-yellow-300 rounded-md px-3 py-1.5 focus:outline-none  focus:bg-white transition-all placeholder:text-yellow-700/30 text-gray-800"
-                    />
-                    <button
-                        onClick={castWhisper}
-                        disabled={!draft.trim()}
-                        className="shrink-0 px-4 py-2.5  bg-yellow-500 hover:bg-yellow-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-md transition-colors shadow-sm flex items-center justify-center"
-                    >
-                        <Send className="w-4 h-4" />
-                    </button>
-                </div>
+            <div className="relative group">
+                <input
+                    type="text"
+                    value={draft}
+                    onChange={(e) => setDraft(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && castWhisper()}
+                    placeholder="Type your message...."
+                    className="w-full p-4 bg-slate-200 placeholder:text-slate-400 text-sm font-serif italic text-slate-900 focus:outline-none focus:ring-0"
+                />
+                <button
+                    onClick={castWhisper}
+                    disabled={!draft.trim()}
+                    className="absolute right-2 top-2 bottom-2 px-4 flex items-center justify-center group-focus-within:text-indigo-500 rounded-md"
+                >
+                    <Send className="w-5 h-5" />
+                </button>
             </div>
         </div>
     );
