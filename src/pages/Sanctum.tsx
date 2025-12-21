@@ -7,6 +7,7 @@ import Vellum from "../components/Vellum";
 import Whispers from "../components/Whispers";
 import Artifacts from "../components/Artifacts";
 import ProphecyModal from "../components/ProphecyModal";
+import RevelationModal from "../components/RevelationModal";
 
 import useSocket from "../hooks/useSocket";
 import useSeer from "../hooks/useSeer";
@@ -14,7 +15,6 @@ import useRitual from "../hooks/useRitual";
 import useRitualTimer from "../hooks/useRitualTimer";
 
 import { ISeer, Rites } from "../types";
-import RevelationModal from "../components/RevelationModal";
 
 const Sanctum: React.FC = () => {
     const navigate = useNavigate();
@@ -29,13 +29,14 @@ const Sanctum: React.FC = () => {
     const rite = useRitual((state) => state.rite);
     const omen = useRitual((state) => state.omen);
     const enigma = useRitual((state) => state.enigma);
-    const unveiledSeers = useRitual((state) => state.unveiledSeers);
     const setRite = useRitual((state) => state.setRite);
     const setSeers = useRitual((state) => state.setSeers);
     const setEnigma = useRitual((state) => state.setEnigma);
     const setOmen = useRitual((state) => state.setOmen);
     const setCasterSignature = useRitual((state) => state.setCasterSignature);
     const setUnveiledSeers = useRitual((state) => state.setUnveiledSeers);
+    const setCurrentCycle = useRitual((state) => state.setCurrentCycle);
+    const setTotalCycles = useRitual((state) => state.setTotalCycles);
     const setTerminus = useRitual((state) => state.setTerminus);
     const resetRitual = useRitual((state) => state.resetRitual);
 
@@ -89,7 +90,17 @@ const Sanctum: React.FC = () => {
         setProphecyOptions(data.prophecies);
     };
 
-    const onRiteProgression = (data: { rite: Rites; message: string; casterId?: string; omen?: string; enigma?: string; unveiledSeers?: ISeer[]; terminus?: number }) => {
+    const onRiteProgression = (data: {
+        rite: Rites;
+        message: string;
+        casterId?: string;
+        omen?: string;
+        enigma?: string;
+        unveiledSeers?: ISeer[];
+        currentCycle?: number;
+        totalCycles?: number;
+        terminus?: number;
+    }) => {
         console.log(`sketchbee-log: Entering Rite: ${data.rite} - ${data.message}`);
 
         setRite(data.rite);
@@ -101,6 +112,12 @@ const Sanctum: React.FC = () => {
                 setOmen("");
                 setEnigma("");
                 setUnveiledSeers([]);
+                if (!data.currentCycle || !data.totalCycles) {
+                    console.error("sketchbee-error: currentCycle or totalCycles is missing in CONSECRATION rite data");
+                    return;
+                }
+                setCurrentCycle(data.currentCycle);
+                setTotalCycles(data.totalCycles);
                 if (!data.casterId) {
                     console.error("sketchbee-error: casterId is missing in CONSECRATION rite data");
                     return;
@@ -210,7 +227,7 @@ const Sanctum: React.FC = () => {
                 <ProphecyModal isOpen={!!prophecyOptions} prophecies={prophecyOptions} secondsLeft={secondsLeft} onSelect={handleProphecySelection} />
             )}
 
-            {rite === Rites.REVELATION && enigma && <RevelationModal enigma={enigma} unveiledSeers={unveiledSeers} secondsLeft={secondsLeft} />}
+            {rite === Rites.REVELATION && <RevelationModal handleGameOver={handleChamberLeave} />}
         </div>
     );
 };
