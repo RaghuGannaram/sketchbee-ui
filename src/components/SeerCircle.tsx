@@ -1,11 +1,13 @@
 import React, { useEffect } from "react";
 import { Wand2, Eye, UsersRound, Zap } from "lucide-react";
+import CycleProgressBar from "./CycleProgressBar";
 import useRitual from "../hooks/useRitual";
 
 const SeerCircle: React.FC = () => {
     const seers = useRitual((state) => state.seers);
     const unveiledSeers = useRitual((state) => state.unveiledSeers);
     const casterSignature = useRitual((state) => state.casterSignature);
+
     const setSeers = useRitual((state) => state.setSeers);
 
     const syncedSeers = React.useMemo(() => {
@@ -96,12 +98,7 @@ const SeerCircle: React.FC = () => {
                 })}
             </ul>
 
-            <div className="px-6 py-4 bg-slate-500/10 border-t border-indigo-100 flex justify-between items-center">
-                <span className="text-[9px] font-mono text-slate-500 font-bold uppercase tracking-[0.3em]">3/5 rounds completed</span>
-                <div className="h-1.5 w-12 bg-indigo-200 rounded-full overflow-hidden">
-                    <div className="h-full bg-indigo-500 w-2/3 rounded-full shadow-[0_0_8px_rgba(99,102,241,0.5)]" />
-                </div>
-            </div>
+            <CycleProgressBar />
         </div>
     );
 };

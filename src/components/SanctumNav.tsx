@@ -11,7 +11,7 @@ interface ISanctumNavProps {
     onLeave: () => void;
 }
 
-const SanctumNav: React.FC<ISanctumNavProps> = ({ rite, secondsLeft, omen, enigma, epithet, onLeave }) => {
+const SanctumNav: React.FC<ISanctumNavProps> = ({ rite, secondsLeft, omen, enigma, onLeave }) => {
     const getRitualConfig = (rite: Rites) => {
         switch (rite) {
             case Rites.CONGREGATION:
