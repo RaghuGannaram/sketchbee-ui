@@ -1,13 +1,35 @@
-import React from "react";
-import { Wand2, Eye, UsersRound, Ticket } from "lucide-react";
+import React, { useEffect } from "react";
+import { Wand2, Eye, UsersRound, Zap } from "lucide-react";
 import useRitual from "../hooks/useRitual";
 
 const SeerCircle: React.FC = () => {
     const seers = useRitual((state) => state.seers);
-    const casterSignature = useRitual((state) => state.casterSignature);
     const unveiledSeers = useRitual((state) => state.unveiledSeers);
+    const casterSignature = useRitual((state) => state.casterSignature);
+    const setSeers = useRitual((state) => state.setSeers);
 
-    const sortedSeers = [...seers].sort((a, b) => b.essence - a.essence);
+    const syncedSeers = React.useMemo(() => {
+        return seers.map((seer) => {
+            const unveiledSeer = unveiledSeers.find((u) => u.seerId === seer.seerId);
+
+            if (unveiledSeer) {
+                return {
+                    ...seer,
+                    currentEssence: unveiledSeer.currentEssence,
+                    essence: unveiledSeer.essence,
+                };
+            }
+            return seer;
+        });
+    }, [seers, unveiledSeers]);
+
+    const sortedSeers = [...syncedSeers].sort((a, b) => b.essence - a.essence);
+
+    useEffect(() => {
+        if (unveiledSeers.length > 0) {
+            setSeers(syncedSeers);
+        }
+    }, [unveiledSeers, setSeers]);
 
     return (
         <div className="w-full h-full flex flex-col bg-slate-100 backdrop-blur-2xl border border-indigo-100 shadow-[0_20px_50px_rgba(0,0,0,0.05)] rounded-xl overflow-hidden">
@@ -64,11 +86,9 @@ const SeerCircle: React.FC = () => {
 
                                 <div className="flex justify-between items-center">
                                     <div className="flex items-center gap-1 opacity-60">
-                                        <Ticket className="w-2.5 h-2.5 text-slate-700" />
-                                        <span className="text-[10px] font-mono font-bold text-slate-700 uppercase tracking-widest -mb-0.5">{seer.essence} points</span>
+                                        <Zap className="w-2.5 h-2.5 text-slate-700" />
+                                        <span className="text-[10px] font-mono font-bold text-slate-900 uppercase tracking-widest -mb-0.3">{seer.essence} points</span>
                                     </div>
-
-                                    {seer.currentEssence > 0 && <span className="text-[11px] font-mono text-indigo-600 font-black">+{seer.currentEssence}</span>}
                                 </div>
                             </div>
                         </li>

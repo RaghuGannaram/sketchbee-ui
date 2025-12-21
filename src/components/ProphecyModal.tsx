@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Clock, AlertTriangle, Zap } from "lucide-react";
+import { Clock, ClockFading, ClockAlert } from "lucide-react";
 
 interface IProphecyModalProps {
     isOpen: boolean;
@@ -51,9 +51,9 @@ const ProphecyModal: React.FC<IProphecyModalProps> = ({ isOpen, prophecies, seco
                         }`}
                     >
                         {isPortalClosing ? (
-                            <Zap className="w-3.5 h-3.5 fill-current" />
+                            <ClockAlert className="w-3.5 h-3.5 fill-current" />
                         ) : isPortalFading ? (
-                            <AlertTriangle className="w-3.5 h-3.5" />
+                            <ClockFading className="w-3.5 h-3.5" />
                         ) : (
                             <Clock className="w-3.5 h-3.5" />
                         )}

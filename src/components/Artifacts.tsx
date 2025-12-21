@@ -1,5 +1,5 @@
 import React from "react";
-import { Eraser, Brush, Undo2, Redo2, Trash2, Eye, Zap } from "lucide-react";
+import { Eraser, Brush, Undo2, Redo2, Trash2, Eye, PencilLine } from "lucide-react";
 import useStylus from "../hooks/useStylus";
 import useSeer from "../hooks/useSeer";
 import useSocket from "../hooks/useSocket";
@@ -47,16 +47,16 @@ const Artifacts: React.FC = () => {
         emit("rune:void", { chamberId, casterId: seerId });
     };
 
-    // if (casterSignature !== seerId || rite !== Rites.MANIFESTATION) {
-    //     return (
-    //         <div className="w-full flex items-center justify-center p-4 mt-4">
-    //             <div className="flex items-center gap-3 px-6 py-2 bg-white/40 backdrop-blur-md rounded-full border border-indigo-100/50 shadow-sm">
-    //                 <Eye className="w-4 h-4 text-indigo-400 animate-pulse" />
-    //                 <span className="text-[11px] font-mono font-bold text-indigo-900/40 uppercase tracking-[0.3em]">Observing Astral Flow</span>
-    //             </div>
-    //         </div>
-    //     );
-    // }
+    if (casterSignature !== seerId || rite !== Rites.MANIFESTATION) {
+        return (
+            <div className="w-full flex items-center justify-center p-4">
+                <div className="flex items-center gap-3 px-6 py-2 bg-white/40 backdrop-blur-md rounded-full border border-indigo-100/50 shadow-sm">
+                    <Eye className="w-4 h-4 text-indigo-400 animate-pulse" />
+                    <span className="text-[11px] font-mono font-bold text-indigo-900/40 uppercase tracking-[0.3em]">Observing Astral Flow</span>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="flex justify-between items-center gap-6 px-6 py-3 bg-slate-200 rounded-xl">
@@ -78,7 +78,7 @@ const Artifacts: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-4 flex-1 max-w-xs">
-                <Zap className="w-3.5 h-3.5 text-indigo-500" />
+                <PencilLine className="w-3.5 h-3.5 text-indigo-500" />
                 <input
                     type="range"
                     min="1"

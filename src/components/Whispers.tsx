@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Send, MessageSquare, Scroll, Sparkles, ShieldAlert, Zap, Target } from "lucide-react";
+import { Send, MessageSquare, ShieldAlert, Target } from "lucide-react";
 import useSeer from "../hooks/useSeer";
 import useSocket from "../hooks/useSocket";
 

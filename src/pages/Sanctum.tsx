@@ -14,6 +14,7 @@ import useRitual from "../hooks/useRitual";
 import useRitualTimer from "../hooks/useRitualTimer";
 
 import { ISeer, Rites } from "../types";
+import RevelationModal from "../components/RevelationModal";
 
 const Sanctum: React.FC = () => {
     const navigate = useNavigate();
@@ -28,6 +29,7 @@ const Sanctum: React.FC = () => {
     const rite = useRitual((state) => state.rite);
     const omen = useRitual((state) => state.omen);
     const enigma = useRitual((state) => state.enigma);
+    const unveiledSeers = useRitual((state) => state.unveiledSeers);
     const setRite = useRitual((state) => state.setRite);
     const setSeers = useRitual((state) => state.setSeers);
     const setEnigma = useRitual((state) => state.setEnigma);
@@ -207,6 +209,8 @@ const Sanctum: React.FC = () => {
             {rite === Rites.DIVINATION && prophecyOptions && prophecyOptions.length > 0 && (
                 <ProphecyModal isOpen={!!prophecyOptions} prophecies={prophecyOptions} secondsLeft={secondsLeft} onSelect={handleProphecySelection} />
             )}
+
+            {rite === Rites.REVELATION && enigma && <RevelationModal enigma={enigma} unveiledSeers={unveiledSeers} secondsLeft={secondsLeft} />}
         </div>
     );
 };
