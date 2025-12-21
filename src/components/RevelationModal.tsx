@@ -1,24 +1,14 @@
-import { useEffect } from "react";
 import { Trophy, TrendingUp, Clock, Zap } from "lucide-react";
 import useRitual from "../hooks/useRitual";
-import useRitualTimer from "../hooks/useRitualTimer";
 
-const RevelationModal = ({ handleGameOver }: { handleGameOver: () => void }) => {
+const RevelationModal = ({ secondsLeft }: { secondsLeft: number }) => {
     const enigma = useRitual((state) => state.enigma);
     const seers = useRitual((state) => state.seers);
     const currentCycle = useRitual((state) => state.currentCycle);
     const totalCycles = useRitual((state) => state.totalCycles);
 
-    const secondsLeft = useRitualTimer();
-
     const isLastCycle = currentCycle === totalCycles;
     const sortedSeers = seers.sort((a, b) => (isLastCycle ? b.essence - a.essence : b.currentEssence - a.currentEssence));
-
-    // useEffect(() => {
-    //     if (secondsLeft <= 2 && isLastCycle) {
-    //         handleGameOver();
-    //     }
-    // }, [secondsLeft]);
 
     return (
         <div className="fixed inset-0 z-50 flex justify-center items-center bg-slate-900/5 backdrop-blur-xl transition-all duration-700">

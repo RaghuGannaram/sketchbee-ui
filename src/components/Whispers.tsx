@@ -30,6 +30,7 @@ const Whispers: React.FC = () => {
                     script: data.text,
                     timestamp: Date.now(),
                     isSystem: true,
+                    isUnveiled: false,
                 },
             ]);
         };
@@ -50,6 +51,7 @@ const Whispers: React.FC = () => {
                     script: data.script,
                     timestamp: data.timestamp,
                     isSystem: false,
+                    isUnveiled: false,
                 },
             ]);
         };

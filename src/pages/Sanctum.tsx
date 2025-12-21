@@ -27,8 +27,6 @@ const Sanctum: React.FC = () => {
     const sever = useSeer((state) => state.sever);
 
     const rite = useRitual((state) => state.rite);
-    const omen = useRitual((state) => state.omen);
-    const enigma = useRitual((state) => state.enigma);
     const setRite = useRitual((state) => state.setRite);
     const setSeers = useRitual((state) => state.setSeers);
     const setEnigma = useRitual((state) => state.setEnigma);
@@ -151,6 +149,7 @@ const Sanctum: React.FC = () => {
 
             case Rites.DISSOLUTION:
                 resetRitual();
+                handleChamberLeave();
                 break;
         }
     };
@@ -205,9 +204,9 @@ const Sanctum: React.FC = () => {
 
     return (
         <div className="min-h-screen w-full flex flex-col justify-between px-8 py-4 gap-5 bg-linear-to-br from-slate-50 via-indigo-50/30 to-slate-100 overflow-hidden font-serif scroll-smooth scrollbar-hide">
-            <SanctumNav rite={rite} secondsLeft={secondsLeft} omen={omen} enigma={enigma} epithet={epithet} onLeave={handleChamberLeave} />
+            <SanctumNav rite={rite} secondsLeft={secondsLeft} onLeave={handleChamberLeave} />
 
-            <div className="flex-1 grid grid-cols-1 sm:grid-cols-[350px_1fr_350px] gap-6">
+            <div className="flex-1 grid grid-cols-1 sm:grid-cols-[350px_1fr_350px] gap-6 max-h-[80vh]">
                 <div className="order-2 sm:order-1 h-full min-h-[400px]">
                     <SeerCircle />
                 </div>
@@ -227,7 +226,7 @@ const Sanctum: React.FC = () => {
                 <ProphecyModal isOpen={!!prophecyOptions} prophecies={prophecyOptions} secondsLeft={secondsLeft} onSelect={handleProphecySelection} />
             )}
 
-            {rite === Rites.REVELATION && <RevelationModal handleGameOver={handleChamberLeave} />}
+            {rite === Rites.REVELATION && <RevelationModal secondsLeft={secondsLeft} />}
         </div>
     );
 };

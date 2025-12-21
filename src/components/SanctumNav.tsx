@@ -1,17 +1,18 @@
 import React from "react";
 import { ArrowLeft, Clock, Users, Flame, Feather, Sun, Skull, HelpCircle, Scroll, Sparkles, WandSparkles, Puzzle } from "lucide-react";
 import { Rites } from "../types";
+import useRitual from "../hooks/useRitual";
 
 interface ISanctumNavProps {
     rite: Rites;
     secondsLeft: number;
-    omen: string | null;
-    enigma: string | null;
-    epithet: string;
     onLeave: () => void;
 }
 
-const SanctumNav: React.FC<ISanctumNavProps> = ({ rite, secondsLeft, omen, enigma, onLeave }) => {
+const SanctumNav: React.FC<ISanctumNavProps> = ({ rite, secondsLeft, onLeave }) => {
+    const omen = useRitual((state) => state.omen);
+    const enigma = useRitual((state) => state.enigma);
+
     const getRitualConfig = (rite: Rites) => {
         switch (rite) {
             case Rites.CONGREGATION:
