@@ -33,6 +33,7 @@ const ProphecyModal: React.FC<IProphecyModalProps> = ({ isOpen, prophecies, seco
     }, [isOpen, secondsLeft, prophecies, selectedProphecy]);
 
     if (!isOpen || !prophecies || prophecies.length === 0) return null;
+
     return (
         <div
             className={`fixed inset-0 z-50 flex justify-center items-center transition-all duration-700
@@ -46,8 +47,8 @@ const ProphecyModal: React.FC<IProphecyModalProps> = ({ isOpen, prophecies, seco
                             isPortalClosing
                                 ? "bg-red-600 border-red-500 text-white shadow-lg animate-pulse scale-105"
                                 : isPortalFading
-                                ? "bg-amber-100 border-amber-300 text-amber-700"
-                                : "bg-stone-900 border-stone-800 text-stone-100"
+                                  ? "bg-amber-100 border-amber-300 text-amber-700"
+                                  : "bg-stone-900 border-stone-800 text-stone-100"
                         }`}
                     >
                         {isPortalClosing ? (

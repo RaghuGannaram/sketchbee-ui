@@ -19,11 +19,11 @@ export interface IRitualActions {
     setSeers: (seers: ISeer[]) => void;
     setOmen: (omen: string) => void;
     setEnigma: (enigma: string) => void;
-    setCasterSignature: (casterId: string | null) => void;
     setUnveiledSeers: (seers: ISeer[]) => void;
-    setTerminus: (terminus: number | null) => void;
+    setCasterSignature: (casterId: string | null) => void;
     setCurrentCycle: (cycle: number) => void;
     setTotalCycles: (cycles: number) => void;
+    setTerminus: (terminus: number | null) => void;
     resetRitual: () => void;
 }
 
@@ -49,11 +49,11 @@ export const RitualStore = createStore<IRitualStore>()(
         setSeers: (seers) => set({ seers }, false, "setSeers"),
         setOmen: (omen) => set({ omen }, false, "setOmen"),
         setEnigma: (enigma) => set({ enigma }, false, "setEnigma"),
-        setCasterSignature: (casterSignature) => set({ casterSignature }, false, "setCaster"),
         setUnveiledSeers: (seers) => set({ unveiledSeers: seers }, false, "setUnveiledSeers"),
-        setTerminus: (terminus) => set({ terminus }, false, "setTerminus"),
+        setCasterSignature: (casterSignature) => set({ casterSignature }, false, "setCaster"),
         setCurrentCycle: (cycle) => set({ currentCycle: cycle }, false, "setCurrentCycle"),
         setTotalCycles: (cycles) => set({ totalCycles: cycles }, false, "setTotalCycles"),
+        setTerminus: (terminus) => set({ terminus }, false, "setTerminus"),
         resetRitual: () => set(INITIAL_STATE, false, "resetRitual"),
     }))
 );
