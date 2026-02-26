@@ -59,26 +59,26 @@ const Artifacts: React.FC = () => {
 	}
 
 	return (
-		<div className="flex justify-between items-center gap-6 px-6 py-3 bg-slate-200 rounded-xl">
-			<div className="flex items-center gap-1">
+		<div className="flex flex-wrap justify-between items-center gap-y-3 gap-x-2 px-3 md:px-6 py-3 bg-slate-200 rounded-xl">
+			<div className="flex items-center gap-1 order-1">
 				<button
 					onClick={() => switchTip("etch")}
-					className={`p-2.5 rounded-lg transition-all ${tip === "etch" ? "bg-indigo-500 text-slate-100" : "text-slate-700 hover:text-indigo-600 hover:bg-slate-300"}`}
+					className={`p-2 md:p-2.5 rounded-lg transition-all ${tip === "etch" ? "bg-indigo-500 text-slate-100" : "text-slate-700 hover:text-indigo-600 hover:bg-slate-300"}`}
 					title="Draw"
 				>
-					<Brush className="w-5 h-5" />
+					<Brush className="w-4 h-4 md:w-5 md:h-5" />
 				</button>
 				<button
 					onClick={() => switchTip("rub")}
-					className={`p-2.5 rounded-lg transition-all ${tip === "rub" ? "bg-indigo-500 text-slate-100" : "text-slate-700 hover:text-indigo-600 hover:bg-slate-300"}`}
+					className={`p-2 md:p-2.5 rounded-lg transition-all ${tip === "rub" ? "bg-indigo-500 text-slate-100" : "text-slate-700 hover:text-indigo-600 hover:bg-slate-300"}`}
 					title="Erase"
 				>
-					<Eraser className="w-5 h-5" />
+					<Eraser className="w-4 h-4 md:w-5 md:h-5" />
 				</button>
 			</div>
 
-			<div className="flex items-center gap-4 flex-1 max-w-xs">
-				<PencilLine className="w-3.5 h-3.5 text-indigo-500" />
+			<div className="flex items-center gap-3 w-full md:w-auto md:flex-1 md:max-w-xs order-3 md:order-2 px-2 md:px-0 mt-1 md:mt-0">
+				<PencilLine className="w-4 h-4 md:w-3.5 md:h-3.5 text-indigo-500 shrink-0" />
 				<input
 					type="range"
 					min="5"
@@ -87,12 +87,12 @@ const Artifacts: React.FC = () => {
 					onChange={(e) => adjustGauge(Number(e.target.value))}
 					className="flex-1 h-1 bg-indigo-400 rounded-full appearance-none cursor-pointer accent-indigo-600"
 				/>
-				<span className="text-[12px] font-mono font-black text-indigo-500 w-8">{gauge}px</span>
+				<span className="text-[12px] font-mono font-black text-indigo-500 w-8 shrink-0">{gauge}px</span>
 			</div>
 
-			<div className="flex items-center gap-4">
+			<div className="flex items-center gap-1 md:gap-4 order-2 md:order-3">
 				<div className="relative flex items-center gap-2 group cursor-pointer">
-					<div className="w-7 h-7 rounded-full border-2 border-white shadow-sm ring-1 ring-indigo-100 overflow-hidden" style={{ backgroundColor: pigment }}>
+					<div className="w-7 h-7 rounded-full border-2 border-white shadow-sm ring-1 ring-indigo-100 overflow-hidden shrink-0" style={{ backgroundColor: pigment }}>
 						<input type="color" value={pigment} onChange={(e) => mixPigment(e.target.value)} className="absolute inset-0 opacity-0 cursor-pointer scale-150" />
 					</div>
 				</div>
@@ -100,14 +100,14 @@ const Artifacts: React.FC = () => {
 				<div className="h-6 w-px bg-slate-400 mx-1" />
 
 				<div className="flex items-center gap-0.5">
-					<button onClick={() => undoHandler()} className="p-2 text-slate-400 hover:text-indigo-500 transition-colors">
-						<Undo2 className="w-5 h-5" />
+					<button onClick={() => undoHandler()} className="p-1.5 md:p-2 text-slate-400 hover:text-indigo-500 transition-colors" title="Undo">
+						<Undo2 className="w-4 h-4 md:w-5 md:h-5" />
 					</button>
-					<button onClick={() => redoHandler()} className="p-2 text-slate-400 hover:text-indigo-500 transition-colors">
-						<Redo2 className="w-5 h-5" />
+					<button onClick={() => redoHandler()} className="p-1.5 md:p-2 text-slate-400 hover:text-indigo-500 transition-colors" title="Redo">
+						<Redo2 className="w-4 h-4 md:w-5 md:h-5" />
 					</button>
-					<button onClick={() => clearHandler()} className="p-2 text-slate-400 hover:text-rose-500 transition-colors ml-2">
-						<Trash2 className="w-5 h-5" />
+					<button onClick={() => clearHandler()} className="p-1.5 md:p-2 text-slate-400 hover:text-rose-500 transition-colors md:ml-2" title="Clear">
+						<Trash2 className="w-4 h-4 md:w-5 md:h-5" />
 					</button>
 				</div>
 			</div>

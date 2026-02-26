@@ -203,10 +203,10 @@ const Sanctum: React.FC = () => {
 	}, [subscribe, emit, isListenersReady]);
 
 	return (
-		<div className="min-h-dvh w-full flex flex-col justify-between px-4 xl:px-8 py-0 xl:py-4 gap-5 bg-linear-to-br from-slate-50 via-indigo-50/30 to-slate-100 font-serif">
+		<div className="min-h-dvh w-full flex flex-col justify-between px-4 xl:px-8 py-2 xl:py-4 gap-5 bg-linear-to-br from-slate-50 via-indigo-50/30 to-slate-100 font-serif">
 			<SanctumNav rite={rite} secondsLeft={secondsLeft} onLeave={handleChamberLeave} />
 
-			<div className="flex-1 grid grid-cols-1 xl:grid-cols-[320px_1fr_320px] xl:gap-6 relative">
+			<div className="flex-1 grid grid-cols-1 xl:grid-cols-[320px_1fr_320px] gap-2 xl:gap-6 relative">
 				<div className="order-1 xl:order-1 h-auto xl:h-full">
 					<SeerCircle />
 				</div>
