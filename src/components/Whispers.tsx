@@ -98,8 +98,8 @@ const Whispers: React.FC = () => {
 	};
 
 	return (
-		<div className="w-full h-full flex flex-col  bg-slate-100 backdrop-blur-2xl border border-indigo-100 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.05)] overflow-hidden">
-			<div className="shrink-0 px-6 py-5 bg-slate-500/10 flex items-center gap-4">
+		<div className="w-full h-[280px] xl:h-full flex flex-col  bg-slate-100 backdrop-blur-2xl border border-indigo-100 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.05)] overflow-hidden">
+			<div className="hidden xl:flex items-center gap-4 shrink-0 px-6 py-5 bg-slate-500/10 ">
 				<MessageSquare className="w-4 h-4 text-indigo-400 stroke-[2.5px]" />
 				<h2 className="font-mono font-bold text-slate-700 tracking-[0.2em] uppercase text-xs">Live Chat</h2>
 			</div>
@@ -117,7 +117,7 @@ const Whispers: React.FC = () => {
 						[&::-webkit-scrollbar-thumb]:rounded-full
 					  [&::-webkit-scrollbar-thumb]:hover:bg-slate-400
 					  [&::-webkit-scrollbar-thumb]:active:bg-indigo-400
-	"
+					"
 			>
 				{whispers.map((whisper, index) => {
 					const isMe = whisper.epithet === epithet;

@@ -48,7 +48,7 @@ const Atrium: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-linear-to-br from-slate-50 via-indigo-50/50 to-slate-100 relative overflow-hidden font-serif select-none">
+        <div className="min-h-dvh flex flex-col items-center justify-center bg-linear-to-br from-slate-50 via-indigo-50/50 to-slate-100 relative overflow-hidden font-serif select-none">
             <div className="relative flex flex-col items-center mb-12">
                 <motion.div
                     initial={{ scale: 0.8, opacity: 0 }}

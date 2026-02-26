@@ -2,9 +2,9 @@ import React, { useRef, useState, useEffect, useCallback } from "react";
 import useStylus from "../hooks/useStylus";
 import useSocket from "../hooks/useSocket";
 import useSeer from "../hooks/useSeer";
+import useRitual from "../hooks/useRitual";
 import brushCursor from "../assets/brush-cursor.png";
 import eraserCursor from "../assets/eraser-cursor.png";
-import useRitual from "../hooks/useRitual";
 import { Rites } from "../types";
 
 interface ISigil {
@@ -14,6 +14,9 @@ interface ISigil {
     gauge: number;
     pigment: string;
 }
+
+const VIRTUAL_WIDTH = 1920;
+const VIRTUAL_HEIGHT = 1080;
 
 const Vellum: React.FC = () => {
     const tip = useStylus((state) => state.tip);
@@ -38,25 +41,6 @@ const Vellum: React.FC = () => {
     const [cursorStyle, setCursorStyle] = useState<string>("crosshair");
 
     useEffect(() => {
-        const resizeCanvas = () => {
-            const canvas = canvasRef.current;
-            if (!canvas) return;
-
-            const scale = window.devicePixelRatio || 1;
-            canvas.width = canvas.offsetWidth * scale;
-            canvas.height = canvas.offsetHeight * scale;
-
-            const ctx = canvas.getContext("2d");
-            if (ctx) ctx.scale(scale, scale);
-        };
-
-        window.addEventListener("resize", resizeCanvas);
-        resizeCanvas();
-
-        return () => window.removeEventListener("resize", resizeCanvas);
-    }, []);
-
-    useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
 
@@ -68,11 +52,11 @@ const Vellum: React.FC = () => {
 
             img.src = snapshots[pointer];
             img.onload = () => {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                ctx.clearRect(0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
+                ctx.drawImage(img, 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
             };
         } else {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.clearRect(0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
         }
     }, [pointer, snapshots]);
 
@@ -207,24 +191,43 @@ const Vellum: React.FC = () => {
         ctx.stroke();
     }, []);
 
-    const engageStylus = (event: React.MouseEvent) => {
-        if (!canvasRef.current) return;
-        const rect = canvasRef.current.getBoundingClientRect();
+    const getMappedCoordinates = (event: React.MouseEvent | React.TouchEvent) => {
+        if (!canvasRef.current) return null;
 
-        setIsCasting(true);
-        setLastPoint({ x: event.clientX - rect.left, y: event.clientY - rect.top });
+        const canvas = canvasRef.current;
+        const rect = canvas.getBoundingClientRect();
+
+        let clientX, clientY;
+        if ("touches" in event) {
+            clientX = event.touches[0].clientX;
+            clientY = event.touches[0].clientY;
+        } else {
+            clientX = (event as React.MouseEvent).clientX;
+            clientY = (event as React.MouseEvent).clientY;
+        }
+
+        const scaleX = VIRTUAL_WIDTH / rect.width;
+        const scaleY = VIRTUAL_HEIGHT / rect.height;
+
+        return {
+            x: (clientX - rect.left) * scaleX,
+            y: (clientY - rect.top) * scaleY,
+        };
     };
 
-    const wieldStylus = (event: React.MouseEvent) => {
+    const engageStylus = (event: React.MouseEvent | React.TouchEvent) => {
+        const coordinates = getMappedCoordinates(event);
+        if (!coordinates) return;
+
+        setIsCasting(true);
+        setLastPoint(coordinates);
+    };
+
+    const wieldStylus = (event: React.MouseEvent | React.TouchEvent) => {
         if (!isCasting || !canvasRef.current || !lastPoint) return;
-
-        const ctx = canvasRef.current.getContext("2d");
-        if (!ctx) return;
-
-        const rect = canvasRef.current.getBoundingClientRect();
-        const x = event.clientX - rect.left;
-        const y = event.clientY - rect.top;
-        const newPoint = { x, y };
+        
+        const newPoint = getMappedCoordinates(event);
+        if (!newPoint) return;
 
         performStroke(lastPoint, newPoint, tip, gauge, pigment);
         bufferRef.current.push({ start: lastPoint, end: newPoint, tip, gauge, pigment });
@@ -243,15 +246,23 @@ const Vellum: React.FC = () => {
     };
 
     return (
-        <div className={`relative w-full h-full ${casterSignature === seerId && rite === Rites.MANIFESTATION ? "cursor-crosshair" : "pointer-events-none cursor-default"}`}>
+        <div
+            className={`relative w-full h-full flex items-center justify-center bg-slate-100 ${casterSignature === seerId && rite === Rites.MANIFESTATION ? "cursor-crosshair" : "pointer-events-none cursor-default"}`}
+        >
             <canvas
                 ref={canvasRef}
+                width={VIRTUAL_WIDTH}
+                height={VIRTUAL_HEIGHT}
                 onMouseDown={engageStylus}
                 onMouseMove={wieldStylus}
                 onMouseUp={disengageStylus}
                 onMouseLeave={disengageStylus}
-                className="w-full h-full bg-white cursor-pointer touch-none"
-                style={{ cursor: cursorStyle }}
+                onTouchStart={engageStylus}
+                onTouchMove={wieldStylus}
+                onTouchEnd={disengageStylus}
+                onTouchCancel={disengageStylus}
+                className="max-w-full max-h-full object-contain bg-white touch-none"
+                style={{ cursor: cursorStyle, aspectRatio: "16/9" }}
             />
         </div>
     );

@@ -81,8 +81,8 @@ const Artifacts: React.FC = () => {
 				<PencilLine className="w-3.5 h-3.5 text-indigo-500" />
 				<input
 					type="range"
-					min="1"
-					max="20"
+					min="5"
+					max="50"
 					value={gauge}
 					onChange={(e) => adjustGauge(Number(e.target.value))}
 					className="flex-1 h-1 bg-indigo-400 rounded-full appearance-none cursor-pointer accent-indigo-600"
