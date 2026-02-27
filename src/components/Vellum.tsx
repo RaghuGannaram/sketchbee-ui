@@ -36,6 +36,7 @@ const Vellum: React.FC = () => {
 
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const bufferRef = useRef<ISigil[]>([]);
+
     const [isCasting, setIsCasting] = useState(false);
     const [lastPoint, setLastPoint] = useState<{ x: number; y: number } | null>(null);
     const [cursorStyle, setCursorStyle] = useState<string>("crosshair");
@@ -52,11 +53,13 @@ const Vellum: React.FC = () => {
 
             img.src = snapshots[pointer];
             img.onload = () => {
-                ctx.clearRect(0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
-                ctx.drawImage(img, 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
+                ctx.globalCompositeOperation = "source-over";
+
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
             };
         } else {
-            ctx.clearRect(0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
         }
     }, [pointer, snapshots]);
 
@@ -117,6 +120,8 @@ const Vellum: React.FC = () => {
             img.src = data.vision;
 
             img.onload = () => {
+                ctx.globalCompositeOperation = "source-over";
+
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
             };
@@ -206,8 +211,8 @@ const Vellum: React.FC = () => {
             clientY = (event as React.MouseEvent).clientY;
         }
 
-        const scaleX = VIRTUAL_WIDTH / rect.width;
-        const scaleY = VIRTUAL_HEIGHT / rect.height;
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
 
         return {
             x: (clientX - rect.left) * scaleX,
@@ -224,7 +229,7 @@ const Vellum: React.FC = () => {
     };
 
     const wieldStylus = (event: React.MouseEvent | React.TouchEvent) => {
-        if (!isCasting || !canvasRef.current || !lastPoint) return;
+        if (!canvasRef.current || !isCasting || !lastPoint) return;
 
         const newPoint = getMappedCoordinates(event);
         if (!newPoint) return;
@@ -236,7 +241,7 @@ const Vellum: React.FC = () => {
     };
 
     const disengageStylus = () => {
-        if (!canvasRef.current || !isCasting) return;
+        if (!canvasRef.current || !isCasting || !lastPoint) return;
 
         setIsCasting(false);
         setLastPoint(null);
