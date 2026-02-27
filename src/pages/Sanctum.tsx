@@ -203,7 +203,7 @@ const Sanctum: React.FC = () => {
 	}, [subscribe, emit, isListenersReady]);
 
 	return (
-		<div className="min-h-dvh w-full flex flex-col justify-between px-4 xl:px-8 py-2 xl:py-4 gap-5 bg-linear-to-br from-slate-50 via-indigo-50/30 to-slate-100 font-serif">
+		<div className="min-h-dvh w-full flex flex-col justify-between px-4 xl:px-8 pt-2 xl:py-4 gap-5 bg-linear-to-br from-slate-50 via-indigo-50/30 to-slate-100 font-serif">
 			<SanctumNav rite={rite} secondsLeft={secondsLeft} onLeave={handleChamberLeave} />
 
 			<div className="flex-1 grid grid-cols-1 xl:grid-cols-[320px_1fr_320px] gap-2 xl:gap-6 relative">
@@ -215,11 +215,11 @@ const Sanctum: React.FC = () => {
 					<Vellum />
 				</div>
 
-				<div className="order-3 xl:order-4 xl:col-span-3">
+				<div className="order-3 xl:order-4 xl:col-span-3 sticky bottom-[290px] z-40 xl:static">
 					<Artifacts />
 				</div>
 
-				<div className="order-4 xl:order-3 h-auto xl:h-[calc(100vh-12rem)] sticky bottom-0 z-40 xl:static">
+				<div className="order-4 xl:order-3 h-auto xl:h-[calc(100vh-12rem)] sticky bottom-[8px] z-40 xl:static">
 					<Whispers />
 				</div>
 			</div>

@@ -225,7 +225,7 @@ const Vellum: React.FC = () => {
 
     const wieldStylus = (event: React.MouseEvent | React.TouchEvent) => {
         if (!isCasting || !canvasRef.current || !lastPoint) return;
-        
+
         const newPoint = getMappedCoordinates(event);
         if (!newPoint) return;
 
@@ -247,7 +247,7 @@ const Vellum: React.FC = () => {
 
     return (
         <div
-            className={`relative w-full h-full flex items-center justify-center bg-slate-100 ${casterSignature === seerId && rite === Rites.MANIFESTATION ? "cursor-crosshair" : "pointer-events-none cursor-default"}`}
+            className={`relative w-full h-full flex items-center justify-center bg-slate-100 select-none ${casterSignature === seerId && rite === Rites.MANIFESTATION ? "cursor-default" : "pointer-events-none cursor-default"}`}
         >
             <canvas
                 ref={canvasRef}

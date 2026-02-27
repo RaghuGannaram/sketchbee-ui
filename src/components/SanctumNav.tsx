@@ -104,22 +104,22 @@ const SanctumNav: React.FC<ISanctumNavProps> = ({ rite, secondsLeft, onLeave }) 
 
 			<div className="order-2 md:order-3 flex-1 flex justify-end items-center gap-10">
 				{enigma && (
-					<div className="relative group flex items-center gap-3 px-4 py-1.5 rounded-full bg-indigo-100 border border-indigo-400 shadow-lg shadow-indigo-900/20">
-						<WandSparkles className="w-4 h-4 text-indigo-700" />
-						<span className="font-serif font-black text-sm text-indigo-900 tracking-wide leading-none">{enigma}</span>
-						<Sparkles className="w-4 h-4 text-indigo-500 absolute -top-1.5 -right-1.5 animate-pulse" />
+					<div className="relative group flex items-center gap-3 px-4 py-1 rounded-full bg-indigo-100 border border-indigo-400 shadow-lg shadow-indigo-900/20">
+						<WandSparkles className="w-3 h-3 text-indigo-700" />
+						<span className="font-mono font-black text-xs text-indigo-900 tracking-wide leading-none">{enigma.toUpperCase()}</span>
+						<Sparkles className="w-3 h-3 text-indigo-500 absolute -top-1.5 -right-1.5 animate-pulse" />
 					</div>
 				)}
 				{!enigma && omen && (
-					<div className="relative group flex items-center gap-3 px-4 py-1.5 rounded-full bg-slate-100 border border-slate-400 shadow-lg shadow-slate-900/20">
+					<div className="relative group flex items-center gap-3 px-4 py-1 rounded-full bg-slate-100 border border-slate-400 shadow-lg shadow-slate-900/20">
 						<Puzzle className="relative w-3 h-3 text-slate-700" />
-						<span className="font-serif font-black text-sm text-slate-900 tracking-[-0.15em] leading-none">
+						<span className="font-mono font-black text-sm text-slate-900 tracking-[-0.15em] leading-none">
 							{omen
 								.split("")
-								.map((char) => (char === " " ? "\u00A0\u00A0\u00A0" : "_\u00A0"))
+								.map((char) => (char === " " ? "\u00A0\u00A0" : "__"))
 								.join("")}
 						</span>
-						<Sparkles className="w-4 h-4 text-slate-500 absolute -top-1.5 -right-1.5 animate-pulse" />
+						<Sparkles className="w-3 h-3 text-slate-500 absolute -top-1.5 -right-1.5 animate-pulse" />
 					</div>
 				)}
 			</div>

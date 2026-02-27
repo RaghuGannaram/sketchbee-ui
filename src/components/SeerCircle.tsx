@@ -112,7 +112,7 @@ const SeerCircle: React.FC = () => {
                 xl:static xl:h-full xl:bg-transparent xl:shadow-none xl:border-none xl:z-auto
             `}
             >
-                <ul className={`flex-1 overflow-y-auto p-4 space-y-3 scroll-smooth scrollbar-hide`}>
+                <ul className={`flex-1 overflow-y-auto p-3 space-y-3 scroll-smooth scrollbar-hide`}>
                     {sortedSeers.map((seer) => {
                         const isUnveiled = unveiledSeers.some((s) => s.seerId === seer.seerId);
                         const isCaster = seer.seerId === casterSignature;
@@ -121,18 +121,18 @@ const SeerCircle: React.FC = () => {
                             <li
                                 key={seer.seerId}
                                 className={`
-                                relative flex items-center gap-4 p-3 rounded-2xl transition-all duration-300 group
+                                relative flex items-center gap-4 p-3 rounded-xl transition-all duration-300 group
                                 ${isUnveiled ? "bg-indigo-200 shadow-sm scale-[1.01] z-10" : "bg-slate-200"}
                                 
                             `}
                             >
                                 <div className="relative">
-                                    <div className={`p-0.5 rounded-full transition-all duration-500 ${isUnveiled ? "bg-indigo-400/80" : "bg-indigo-200"}`}>
-                                        <img src={seer.guise} alt={seer.epithet[0]} className="w-12 h-12 rounded-full object-cover border-2 border-white" />
+                                    <div className={`rounded-full transition-all duration-500 ${isUnveiled ? "bg-indigo-400/80" : "bg-indigo-200"}`}>
+                                        <img src={seer.guise} alt={seer.epithet[0]} className="w-10 h-10 rounded-full object-cover border-2 border-white" />
                                     </div>
                                     {isCaster && (
                                         <div className="absolute -top-1 -right-1 bg-slate-900 text-white rounded-full p-1 shadow-lg ring-2 ring-white">
-                                            <Wand2 className="w-3 h-3" />
+                                            <Wand2 className="w-2 h-2" />
                                         </div>
                                     )}
                                 </div>

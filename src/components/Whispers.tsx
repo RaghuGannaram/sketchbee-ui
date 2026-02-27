@@ -98,15 +98,17 @@ const Whispers: React.FC = () => {
 	};
 
 	return (
-		<div className="w-full h-[280px] xl:h-full flex flex-col  bg-slate-100 backdrop-blur-2xl border border-indigo-100 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.05)] overflow-hidden">
+		<div className="relative w-full h-[280px] xl:h-full flex flex-col  bg-slate-100 backdrop-blur-2xl border border-indigo-100 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.05)] overflow-hidden">
 			<div className="hidden xl:flex items-center gap-4 shrink-0 px-6 py-5 bg-slate-500/10 ">
 				<MessageSquare className="w-4 h-4 text-indigo-400 stroke-[2.5px]" />
 				<h2 className="font-mono font-bold text-slate-700 tracking-[0.2em] uppercase text-xs">Live Chat</h2>
 			</div>
-
+			<div className="absolute top-0 left-0 w-full h-24 pointer-events-none z-10 xl:hidden bg-black/5 backdrop-blur-md mask-[linear-gradient(to_bottom,black_20%,transparent)]"></div>
 			<div
 				ref={scrollContainerRef}
-				className="flex-1 overflow-y-scroll px-6 py-6 space-y-6 scrollbar-thin 
+				className="flex-1 overflow-y-scroll px-6 py-6 space-y-6 
+						mask-[linear-gradient(to_bottom,transparent,black_40%)]
+						scrollbar-thin 
 						scrollbar-track-transparent 
 						scrollbar-thumb-slate-300 
 						hover:scrollbar-thumb-slate-400 
@@ -152,7 +154,7 @@ const Whispers: React.FC = () => {
 						<div key={index} className={`flex flex-col ${isMe ? "items-end" : "items-start"}`}>
 							{!isMe && <span className="text-[8px] font-mono font-bold text-slate-700 tracking-widest uppercase ml-1">{whisper.epithet}</span>}
 
-							<div className={`px-4 py-2 rounded-xl ${isMe ? "bg-slate-900 text-slate-200 rounded-tr-none " : "bg-slate-200 text-slate-700 rounded-tl-none"}`}>
+							<div className={`px-4 py-2 rounded-xl ${isMe ? "bg-slate-800 text-slate-200 rounded-tr-none " : "bg-slate-200 text-slate-700 rounded-tl-none"}`}>
 								<p className="text-[13px] font-serif leading-snug tracking-wide italic">{whisper.script}</p>
 							</div>
 						</div>
