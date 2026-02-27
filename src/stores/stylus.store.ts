@@ -4,89 +4,96 @@ import { persist, devtools } from "zustand/middleware";
 type ToolMode = "etch" | "rub";
 
 export interface IStylusState {
-    gauge: number;
-    pigment: string;
-    tip: ToolMode;
+	gauge: number;
+	pigment: string;
+	tip: ToolMode;
 
-    snapshots: string[];
-    pointer: number;
+	snapshots: string[];
+	pointer: number;
 }
 
 export interface IStylusActions {
-    setGauge: (size: number) => void;
-    setPigment: (color: string) => void;
-    setTip: (tool: ToolMode) => void;
+	setGauge: (size: number) => void;
+	setPigment: (color: string) => void;
+	setTip: (tool: ToolMode) => void;
 
-    anchor: (dataURL: string) => void;
-    revoke: () => string | null;
-    invoke: () => string | null;
-    banish: () => void;
+	anchor: (dataURL: string) => void;
+	scry: () => string | null;
+	revoke: () => string | null;
+	invoke: () => string | null;
+	banish: () => void;
 }
 
 export interface IStylusStore extends IStylusState, IStylusActions {}
 
 export const stylusStore = createStore<IStylusStore>()(
-    devtools(
-        persist(
-            (set, get) => ({
-                gauge: 10,
-                pigment: "#5d60c6",
-                tip: "etch",
-                snapshots: [],
-                pointer: -1,
+	devtools(
+		persist(
+			(set, get) => ({
+				gauge: 10,
+				pigment: "#5d60c6",
+				tip: "etch",
+				snapshots: [],
+				pointer: -1,
 
-                setGauge: (size) => set({ gauge: size }),
-                setPigment: (color) => set({ pigment: color }),
-                setTip: (tool) => set({ tip: tool }),
+				setGauge: (size) => set({ gauge: size }),
+				setPigment: (color) => set({ pigment: color }),
+				setTip: (tool) => set({ tip: tool }),
 
-                anchor: (dataURL) =>
-                    set((state) => {
-                        const past = state.snapshots.slice(0, state.pointer + 1);
-                        const updated = [...past, dataURL];
+				anchor: (dataURL) =>
+					set((state) => {
+						const past = state.snapshots.slice(0, state.pointer + 1);
+						const updated = [...past, dataURL];
 
-                        return {
-                            snapshots: updated,
-                            pointer: updated.length - 1,
-                        };
-                    }),
+						return {
+							snapshots: updated,
+							pointer: updated.length - 1,
+						};
+					}),
+				scry: () => {
+					const { pointer, snapshots } = get();
 
-                invoke: () => {
-                    const { pointer, snapshots } = get();
-                    if (pointer >= snapshots.length - 1) return null;
+					if (pointer < 0 || pointer >= snapshots.length) return null;
 
-                    const newPointer = pointer + 1;
-                    set({ pointer: newPointer });
+					return snapshots[pointer];
+				},
+				invoke: () => {
+					const { pointer, snapshots } = get();
+					if (pointer >= snapshots.length - 1) return null;
 
-                    return snapshots[newPointer];
-                },
+					const newPointer = pointer + 1;
+					set({ pointer: newPointer });
 
-                revoke: () => {
-                    const { pointer, snapshots } = get();
-                    if (pointer < 0) return null;
+					return snapshots[newPointer];
+				},
 
-                    const newPointer = pointer - 1;
-                    set({ pointer: newPointer });
+				revoke: () => {
+					const { pointer, snapshots } = get();
+					if (pointer < 0) return null;
 
-                    return newPointer === -1 ? null : snapshots[newPointer];
-                },
+					const newPointer = pointer - 1;
+					set({ pointer: newPointer });
 
-                banish: () => {
-                    set({
-                        snapshots: [],
-                        pointer: -1,
-                    });
+					return newPointer === -1 ? null : snapshots[newPointer];
+				},
 
-                    return null;
-                },
-            }),
-            {
-                name: "sketchbee:stylus",
-                partialize: (state) => ({
-                    gauge: state.gauge,
-                    pigment: state.pigment,
-                    tip: state.tip,
-                }),
-            }
-        )
-    )
+				banish: () => {
+					set({
+						snapshots: [],
+						pointer: -1,
+					});
+
+					return null;
+				},
+			}),
+			{
+				name: "sketchbee:stylus",
+				partialize: (state) => ({
+					gauge: state.gauge,
+					pigment: state.pigment,
+					tip: state.tip,
+				}),
+			}
+		)
+	)
 );
