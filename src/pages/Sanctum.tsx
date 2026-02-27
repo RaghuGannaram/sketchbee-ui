@@ -157,7 +157,11 @@ const Sanctum: React.FC = () => {
 	useEffect(() => {
 		console.log("sketchbee-log: Initializing listeners...");
 
-		const subscriptions = [subscribe("chamber:sync", onChamberSync), subscribe("ritual:prophecies", onProphecyProvision), subscribe("ritual:rite", onRiteProgression)];
+		const subscriptions = [
+			subscribe("chamber:sync", onChamberSync),
+			subscribe("ritual:prophecies", onProphecyProvision),
+			subscribe("ritual:rite", onRiteProgression),
+		];
 
 		setIsListenersReady(true);
 

@@ -130,7 +130,9 @@ const Whispers: React.FC = () => {
 								<div className="relative flex flex-col items-center">
 									<div className="flex items-center gap-3 mb-3">
 										<Target className="w-4 h-4 text-indigo-500" />
-										<span className="font-mono text-[10px] font-black text-indigo-500 tracking-widest uppercase">{whisper.epithet} got it...!!!</span>
+										<span className="font-mono text-[10px] font-black text-indigo-500 tracking-widest uppercase">
+											{whisper.epithet} got it...!!!
+										</span>
 									</div>
 								</div>
 							</div>
@@ -154,7 +156,9 @@ const Whispers: React.FC = () => {
 						<div key={index} className={`flex flex-col ${isMe ? "items-end" : "items-start"}`}>
 							{!isMe && <span className="text-[8px] font-mono font-bold text-slate-700 tracking-widest uppercase ml-1">{whisper.epithet}</span>}
 
-							<div className={`px-4 py-2 rounded-xl ${isMe ? "bg-slate-800 text-slate-200 rounded-tr-none " : "bg-slate-200 text-slate-700 rounded-tl-none"}`}>
+							<div
+								className={`px-4 py-2 rounded-xl ${isMe ? "bg-slate-800 text-slate-200 rounded-tr-none " : "bg-slate-200 text-slate-700 rounded-tl-none"}`}
+							>
 								<p className="text-[13px] font-serif leading-snug tracking-wide italic">{whisper.script}</p>
 							</div>
 						</div>

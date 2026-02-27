@@ -89,7 +89,9 @@ const SanctumNav: React.FC<ISanctumNavProps> = ({ rite, secondsLeft, onLeave }) 
 						<div className="flex items-center gap-1">
 							<Clock className={`w-3 h-3 `} />
 							<div className="flex items-baseline gap-0.5">
-								<span className={`font-mono text-[14px] font-black tabular-nums  transition-colors`}>{secondsLeft.toString().padStart(2, "0")}</span>
+								<span className={`font-mono text-[14px] font-black tabular-nums  transition-colors`}>
+									{secondsLeft.toString().padStart(2, "0")}
+								</span>
 								<span className={`text-[10px] font-mono font-bold uppercase `}>s</span>
 							</div>
 						</div>

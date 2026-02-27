@@ -6,18 +6,18 @@ import useSeer from "./hooks/useSeer";
 import "./App.css";
 
 export default function App() {
-    const epithet = useSeer((state) => state.epithet);
+	const epithet = useSeer((state) => state.epithet);
 
-    console.log("sketchbee-log: user handle, ", epithet);
+	console.log("sketchbee-log: user handle, ", epithet);
 
-    return (
-        <SocketProvider>
-            <Router>
-                <Routes>
-                    <Route path="/" element={<Atrium />} />
-                    <Route path="/sanctum" element={<Sanctum />} />
-                </Routes>
-            </Router>
-        </SocketProvider>
-    );
+	return (
+		<SocketProvider>
+			<Router>
+				<Routes>
+					<Route path="/" element={<Atrium />} />
+					<Route path="/sanctum" element={<Sanctum />} />
+				</Routes>
+			</Router>
+		</SocketProvider>
+	);
 }

@@ -109,8 +109,16 @@ const Artifacts: React.FC = () => {
 
 			<div className="flex items-center gap-1 md:gap-4 order-2 md:order-3">
 				<div className="relative flex items-center gap-2 group cursor-pointer">
-					<div className="w-7 h-7 rounded-full border-2 border-white shadow-sm ring-1 ring-indigo-100 overflow-hidden shrink-0" style={{ backgroundColor: pigment }}>
-						<input type="color" value={pigment} onChange={(e) => mixPigment(e.target.value)} className="absolute inset-0 opacity-0 cursor-pointer scale-150" />
+					<div
+						className="w-7 h-7 rounded-full border-2 border-white shadow-sm ring-1 ring-indigo-100 overflow-hidden shrink-0"
+						style={{ backgroundColor: pigment }}
+					>
+						<input
+							type="color"
+							value={pigment}
+							onChange={(e) => mixPigment(e.target.value)}
+							className="absolute inset-0 opacity-0 cursor-pointer scale-150"
+						/>
 					</div>
 				</div>
 
