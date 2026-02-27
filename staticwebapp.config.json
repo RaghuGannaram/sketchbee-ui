@@ -1,1 +1,9 @@
-{}
+{
+  "routes": [
+    {
+      "route": "/sanctum",
+      "redirect": "/",
+      "statusCode": 301
+    }
+  ]
+}
