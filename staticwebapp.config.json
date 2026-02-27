@@ -1,16 +1,1 @@
-{
-  "routes": [
-    {
-      "route": "/sanctum",
-      "methods": [
-        "get"
-      ],
-      "rewrite": "/",
-      "redirect": "/",
-      "statusCode": 302,
-      "allowedRoles": [
-        "anonymous"
-      ]
-    }
-  ]
-}
+{}
