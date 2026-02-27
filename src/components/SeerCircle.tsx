@@ -8,34 +8,11 @@ const SeerCircle: React.FC = () => {
 	const unveiledSeers = useRitual((state) => state.unveiledSeers);
 	const casterSignature = useRitual((state) => state.casterSignature);
 
-	const setSeers = useRitual((state) => state.setSeers);
-
 	const [isExpanded, setIsExpanded] = useState(false);
 
 	const containerRef = useRef<HTMLDivElement>(null);
 
-	const syncedSeers = React.useMemo(() => {
-		return seers.map((seer) => {
-			const unveiledSeer = unveiledSeers.find((u) => u.seerId === seer.seerId);
-
-			if (unveiledSeer) {
-				return {
-					...seer,
-					currentEssence: unveiledSeer.currentEssence,
-					essence: unveiledSeer.essence,
-				};
-			}
-			return seer;
-		});
-	}, [seers, unveiledSeers]);
-
-	const sortedSeers = [...syncedSeers].sort((a, b) => b.essence - a.essence);
-
-	useEffect(() => {
-		if (unveiledSeers.length > 0) {
-			setSeers(syncedSeers);
-		}
-	}, [unveiledSeers, setSeers]);
+	const sortedSeers = [...seers].sort((a, b) => b.essence - a.essence);
 
 	useEffect(() => {
 		const handleOutsideInteraction = (event: MouseEvent | TouchEvent) => {
@@ -71,7 +48,7 @@ const SeerCircle: React.FC = () => {
 				<div className={`${isExpanded ? "hidden" : "flex xl:hidden"} items-center flex-1 overflow-x-auto scrollbar-hide`}>
 					<div className="flex -space-x-3 px-0 py-0">
 						{sortedSeers.map((seer, index) => {
-							const isUnveiled = unveiledSeers.some((s) => s.seerId === seer.seerId);
+							const isUnveiled = unveiledSeers.some((seerId) => seerId === seer.seerId);
 							return (
 								<div key={seer.seerId} className="relative" style={{ zIndex: 10 + index }}>
 									<div className={`relative rounded-full border-2 ${isUnveiled ? "border-indigo-400" : "border-slate-700"}`}>
@@ -116,7 +93,7 @@ const SeerCircle: React.FC = () => {
 			>
 				<ul className={`flex-1 overflow-y-auto p-3 space-y-3 scroll-smooth scrollbar-hide`}>
 					{sortedSeers.map((seer) => {
-						const isUnveiled = unveiledSeers.some((s) => s.seerId === seer.seerId);
+						const isUnveiled = unveiledSeers.some((seerId) => seerId === seer.seerId);
 						const isCaster = seer.seerId === casterSignature;
 
 						return (

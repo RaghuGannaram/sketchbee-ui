@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Send, MessageSquare, ShieldAlert, Target } from "lucide-react";
 import useSeer from "../hooks/useSeer";
 import useSocket from "../hooks/useSocket";
+import useRitual from "../hooks/useRitual";
 
 interface IWhisper {
 	epithet: string;
@@ -16,6 +17,9 @@ const Whispers: React.FC = () => {
 	const epithet = useSeer((state) => state.epithet);
 	const seerId = useSeer((state) => state.seerId);
 	const chamberId = useSeer((state) => state.chamberId);
+
+	const unveiledSeers = useRitual((state) => state.unveiledSeers);
+	const setUnveiledSeers = useRitual((state) => state.setUnveiledSeers);
 
 	const [draft, setDraft] = useState("");
 	const [whispers, setWhispers] = useState<IWhisper[]>([]);
@@ -75,6 +79,7 @@ const Whispers: React.FC = () => {
 					isUnveiled: true,
 				},
 			]);
+			setUnveiledSeers([...unveiledSeers, data.seerId]);
 		});
 		return () => {
 			unsubscribe();

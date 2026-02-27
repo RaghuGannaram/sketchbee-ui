@@ -94,7 +94,7 @@ const Sanctum: React.FC = () => {
 		casterId?: string;
 		omen?: string;
 		enigma?: string;
-		unveiledSeers?: ISeer[];
+		seers?: ISeer[];
 		currentCycle?: number;
 		totalCycles?: number;
 		terminus?: number;
@@ -139,12 +139,12 @@ const Sanctum: React.FC = () => {
 					console.error("sketchbee-error: enigma is missing in REVELATION rite data");
 					return;
 				}
-				if (!data.unveiledSeers) {
+				if (!data.seers) {
 					console.error("sketchbee-error: seers are missing in REVELATION rite data");
 					return;
 				}
 				setEnigma(data.enigma);
-				setUnveiledSeers(data.unveiledSeers);
+				setSeers(data.seers);
 				break;
 
 			case Rites.DISSOLUTION:
