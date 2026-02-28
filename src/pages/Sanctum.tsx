@@ -182,17 +182,47 @@ const Sanctum: React.FC = () => {
 			return;
 		}
 
-		emit("chamber:join", { epithet, guise, seerId, chamberId }, (response: { ok: boolean; message: string; seer: ISeer | null }) => {
-			if (!response.ok) {
-				console.error("sketchbee-error: failed to join chamber: ", response.message);
+		console.log("sketchbee-log: Listeners are ready, joining chamber");
 
-				sever();
-				return navigate("/");
+		emit(
+			"chamber:join",
+			{ epithet, guise, seerId, chamberId },
+			(response: {
+				ok: boolean;
+				message: string;
+				seer: ISeer | null;
+				chamber: {
+					rite: Rites;
+					riteStartedAt: number;
+					casterId: string;
+					omen: string;
+					unveiledSeers: string[];
+					currentCycle: number;
+					totalCycles: number;
+					terminus: number;
+				} | null;
+			}) => {
+				if (!response.ok) {
+					console.error("sketchbee-error: failed to join chamber: ", response.message);
+
+					sever();
+					return navigate("/");
+				}
+				console.log("sketchbee-log: joined chamber %s as %s: ", response.seer!.chamberId, response.seer!.seerId);
+
+				if (response.chamber) {
+					setRite(response.chamber.rite);
+					setTerminus(response.chamber.terminus);
+					setCasterSignature(response.chamber.casterId);
+					setOmen(response.chamber.omen);
+					setUnveiledSeers(response.chamber.unveiledSeers);
+					setCurrentCycle(response.chamber.currentCycle);
+					setTotalCycles(response.chamber.totalCycles);
+				}
+
+				tether(response);
 			}
-			console.log("sketchbee-log: joined chamber %s as %s: ", response.seer!.chamberId, response.seer!.seerId);
-
-			tether(response);
-		});
+		);
 
 		return () => {
 			emit("chamber:leave", { chamberId, seerId }, (response: any) => {
